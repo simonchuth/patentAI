@@ -100,10 +100,12 @@ def combine_mp_chunks(pkl_path):
 if __name__ == "__main__":
     # Parse input argument to get datapath and savepath
     parser = argparse.ArgumentParser()
+    
     parser.add_argument("--numdays", type=int, default=None)
     parser.add_argument("--target_doc_path", default=None)
     parser.add_argument("--checkpoint_save", default=None)
     parser.add_argument("--savepath", default=None)
+    parser.add_argument("--mp", default=False)
 
     args = parser.parse_args()
     target_doc = None
@@ -116,21 +118,25 @@ if __name__ == "__main__":
             target_doc = pickle.load(file)
 
     if (target_doc is not None) and (args.savepath is not None):
-        num_worker = cpu_count()
-        chunk_list = chunk_doc(target_doc, num_worker)
-        print(f'Chunked into {len(chunk_list)} chunks')
+        if args.mp:
+            num_worker = cpu_count()
+            chunk_list = chunk_doc(target_doc, num_worker)
+            print(f'Chunked into {len(chunk_list)} chunks')
 
-        with Manager() as manager:
-            L = manager.list()  
-            processes = []
-            for chunk_items in chunk_list:
-                p = Process(target=main_extraction, args=(L, chunk_items, args.checkpoint_save))  # Passing the list
-                p.start()
-                processes.append(p)
-            for p in processes:
-                p.join()
-            normal_L = list(L)
-    
+            with Manager() as manager:
+                L = manager.list()  
+                processes = []
+                for chunk_items in chunk_list:
+                    p = Process(target=main_extraction, args=(L, chunk_items, args.checkpoint_save))  # Passing the list
+                    p.start()
+                    processes.append(p)
+                for p in processes:
+                    p.join()
+                output_list = list(L)
+        else:
+            output = main_extraction(target_doc)
+            output_list = [output]
+
     # Saving 
     print(f'Saving to {args.savepath}')
     with open(args.savepath, 'wb') as file:
