@@ -5,6 +5,7 @@ import requests, PyPDF2, io
 from multiprocessing import Process, Manager, cpu_count
 import argparse
 import re
+from os.path import join
 
 
 def fetch_patent_url(numdays=3650):
@@ -42,7 +43,6 @@ def load_web_pdf(url):
         txt = [read_pdf.getPage(i).extractText() for i in range(num_pages)]
         return txt
     
-
 def extract_intro(txt):
     intro = txt[0:2]
     intro = ' '.join(intro)
@@ -56,26 +56,7 @@ def extract_claim_text(txt):
     return claim_pages, text_pages
 
 
-def process_definition(text_pages, definition_pattern=r'[Tt]he term ".+?".+?\.'):
-    pages = [page.replace('\n', '')[1:].strip() for page in text_pages]
-    full_text = ' '.join(pages)
-    definitions = re.findall(definition_pattern, full_text)
-    return definitions
-
-
-def process_claim(claim_pages, claim_pattern = r'\d+?\..+?\.'):
-    pages = [page.replace('\n', '')[1:].strip() for page in claim_pages]
-    calim_full_text = ' '.join(pages)
-    claims = re.findall(claim_pattern, calim_full_text)
-    return claims
-
-
-def process_intro(intro_pages):
-    intro_text = intro_pages.replace('\n', '')
-    return intro_text
-
-
-def main_extraction(target_doc, L=None):
+def main_extraction(target_doc, L=None, checkpoint=None):
     access_problem = []
     data = []
     failed_extract_text = []
@@ -100,7 +81,20 @@ def main_extraction(target_doc, L=None):
         return output  # Normal usage
     else:
         L.append(output)  # Multiprocessing
+        if checkpoint is not None:
+            filename = join(checkpoint, str(len(L))) + '_checkpoint.pkl'
+            with open(filename, 'wb') as file:
+                pickle.dump(output, file)
     print(f'Completed {len(L)} chunks')
+
+
+def combine_mp_chunks(pkl_path):
+    pkl_path = 'pkl_files/ipos_extracted.pkl'
+    with open(pkl_path, 'rb') as file:
+        combined_output = pickle.load(file)
+    data_list = [data for data, failed_extract_text, access_problem in combined_output]
+    data_combined = [app for data in data_list for app in data]
+    return data_combined
 
 
 if __name__ == "__main__":
@@ -108,6 +102,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--numdays", type=int, default=None)
     parser.add_argument("--target_doc_path", default=None)
+    parser.add_argument("--checkpoint_save", default=None)
     parser.add_argument("--savepath", default=None)
 
     args = parser.parse_args()
@@ -129,7 +124,7 @@ if __name__ == "__main__":
             L = manager.list()  
             processes = []
             for chunk_items in chunk_list:
-                p = Process(target=main_extraction, args=(L, chunk_items))  # Passing the list
+                p = Process(target=main_extraction, args=(L, chunk_items, args.checkpoint_save))  # Passing the list
                 p.start()
                 processes.append(p)
             for p in processes:
