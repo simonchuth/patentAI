@@ -105,7 +105,7 @@ if __name__ == "__main__":
     parser.add_argument("--target_doc_path", default=None)
     parser.add_argument("--checkpoint_save", default=None)
     parser.add_argument("--savepath", default=None)
-    parser.add_argument("--mp", default=False)
+    parser.add_argument("--mp", type=bool, default=False)
 
     args = parser.parse_args()
     target_doc = None
@@ -114,8 +114,8 @@ if __name__ == "__main__":
         target_doc = fetch_patent_url(args.numdays)
     
     if args.target_doc_path is not None:
-        with open(args.target_doc_path, 'rb') as file:
-            target_doc = pickle.load(file)
+        with open(args.target_doc_path, 'rb') as pklfile:
+            target_doc = pickle.load(pklfile)
 
     if (target_doc is not None) and (args.savepath is not None):
         if args.mp:
@@ -127,7 +127,7 @@ if __name__ == "__main__":
                 L = manager.list()  
                 processes = []
                 for chunk_items in chunk_list:
-                    p = Process(target=main_extraction, args=(L, chunk_items, args.checkpoint_save))  # Passing the list
+                    p = Process(target=main_extraction, args=(chunk_items, L, args.checkpoint_save))  # Passing the list
                     p.start()
                     processes.append(p)
                 for p in processes:
@@ -139,7 +139,7 @@ if __name__ == "__main__":
 
     # Saving 
     print(f'Saving to {args.savepath}')
-    with open(args.savepath, 'wb') as file:
-        pickle.dump(normal_L, file)
+    with open(args.savepath, 'wb') as pklfile:
+        pickle.dump(output_list, pklfile)
 
 
