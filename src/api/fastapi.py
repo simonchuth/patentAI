@@ -66,7 +66,7 @@ def predict(inputs: Inputs):
         pred_tensor = model.predict(context_combined)
         new_word = predict_word(pred_tensor, instance_dict, new_word)
         print(pre_word)
-        if new_word == 'STOPSTOPSTOP':
+        if new_word == 'stopstopstop':
             break
 
     return {'Result': pre_word}
