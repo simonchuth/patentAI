@@ -77,7 +77,6 @@ def main_extraction(target_doc,
                     L=None,
                     checkpoint=None,
                     keywords=['bio', 'pharm', 'medic']):
-    access_problem = []
     data = []
     failed_extract_text = []
 
@@ -86,7 +85,6 @@ def main_extraction(target_doc,
         try:
             txt = load_web_pdf(url)
         except Exception:
-            access_problem.append(url)
             continue
 
         # Extract text
@@ -97,7 +95,7 @@ def main_extraction(target_doc,
                 data.append([intro, claim_pages, text_pages, txt])
         except Exception:
             failed_extract_text.append(txt)
-    output = [data, failed_extract_text, access_problem]
+    output = [data, failed_extract_text]
     if L is None:
         return output  # Normal usage
     else:
