@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+
+# Additional files
+*.pkl
+*.h5
+*Untitled.ipynb
