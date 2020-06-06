@@ -18,7 +18,7 @@ if __name__ == "__main__":
     parser.add_argument("--checkpoint_folder", default=None)
     parser.add_argument("--combined_file", default=None)
     parser.add_argument("--savepath", default=None)
-    
+
     args = parser.parse_args()
 
     if args.checkpoint_folder is not None:
