@@ -1,5 +1,5 @@
 import re
-
+from tqdm import tqdm
 
 def process_definition(text_pages,
                        definition_pattern=r'[Tt]he term ".+?".+?\.'):
@@ -20,3 +20,12 @@ def process_claim(claim_pages,
 def process_intro(intro_pages):
     intro_text = intro_pages.replace('\n', '')
     return intro_text
+
+
+def extract_unique_vocab(app_list):
+    unique_word = set()
+    for app in tqdm(app_list):
+        for page in app[3]:
+            page = page.replace('\n', ' ').replace('  ', ' ')
+            unique_word = unique_word.union(set(page.split(' ')))
+    return unique_word
