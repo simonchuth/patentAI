@@ -26,3 +26,14 @@ def encode_dict(unique_words, vocab_size=1000000, max_length=50):
             break
     return vocab_dict
 
+
+def encode_data(input):
+
+    if isinstance(input, str):
+        list_input = [input]
+    elif isinstance(input, list):
+        list_input = input
+    else:
+        list_input = [str(input)]
+
+    return encoder(list_input)
