@@ -133,3 +133,4 @@ dmypy.json
 *.pkl
 *.h5
 *Untitled.ipynb
+settings.json
