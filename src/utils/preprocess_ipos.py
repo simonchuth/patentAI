@@ -4,6 +4,7 @@ import pickle
 import requests
 import PyPDF2
 import io
+from os import listdir
 from os.path import join
 
 
@@ -94,3 +95,22 @@ def combine_mp_chunks(pkl_path):
 
     data_combined = [app for data in data_list for app in data]
     return data_combined
+
+
+def combine_checkpoint_file(folder_path):
+    pkl_list = [filename for filename in
+                listdir(folder_path) if filename.endswith('.pkl')]
+    
+    output_combined = []
+    for pkl_name in pkl_list:
+        path = join(folder_path, pkl_name)
+        with open(path, 'rb') as pklfile:
+            data = pickle.load(pklfile)[0]
+            output_combined.append(data)
+
+    return output_combined
+
+
+def extract_app(output_list):
+    app_list = [app for output in output_list for app in output]
+    return app_list
