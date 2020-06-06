@@ -10,11 +10,17 @@ if __name__ == "__main__":
 
     parser.add_argument("--unique_word_pkl", default=None)
     parser.add_argument("--savepath", default=None)
+    parser.add_argument("--vocab_size", type=int, default=1000000)
+    parser.add_argument("--max_length", type=int, default=None)
 
     args = parser.parse_args()
 
     unique_word = pickle_load(args.unique_word_pkl)
-    vocab_dict = encode_dict(unique_word)
+    print('Encoding')
+    vocab_dict = encode_dict(unique_word,
+                             vocab_size=args.vocab_size,
+                             max_length=args.max_length)
+    print('Completed encoding')
 
     if args.savepath is not None:
         print(f'Saving to {args.savepath}')
