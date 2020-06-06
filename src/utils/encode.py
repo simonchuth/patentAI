@@ -1,5 +1,5 @@
 import tensorflow_hub as hub
-from tensorflow_text import SentencepieceTo  # noqa: F401
+from tensorflow_text import SentencepieceTokenizer  # noqa: F401
 from tqdm import tqdm
 
 encoder_path = 'encoder/use4_model/'
