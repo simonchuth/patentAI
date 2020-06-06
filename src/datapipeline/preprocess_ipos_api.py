@@ -9,7 +9,7 @@ from src.utils.mp_preprocess import chunk_doc
 if __name__ == "__main__":
     # Parse input argument to get datapath and savepath
     parser = argparse.ArgumentParser()
-    
+
     parser.add_argument("--numdays", type=int, default=None)
     parser.add_argument("--target_doc_path", default=None)
     parser.add_argument("--checkpoint_save", default=None)
@@ -22,12 +22,12 @@ if __name__ == "__main__":
 
     if args.numdays is not None:
         target_doc = fetch_patent_url(args.numdays)
-    
+
     if args.target_doc_path is not None:
         with open(args.target_doc_path, 'rb') as pklfile:
             target_doc = pickle.load(pklfile)
 
-    if (target_doc is not None) and (args.savepath is not None):
+    if target_doc is not None:
         if args.mp:
             if args.num_chunks is None:
                 num_chunks = cpu_count()
@@ -46,14 +46,17 @@ if __name__ == "__main__":
                     processes.append(p)
                 for p in processes:
                     p.join()
-                output_list = list(L)
+
+                if args.savepath is not None:
+                    print(f'Saving to {args.savepath}')
+                    output_list = list(L)
+                    with open(args.savepath, 'wb') as pklfile:
+                        pickle.dump(output_list, pklfile)
         else:
             output = main_extraction(target_doc)
             output_list = [output]
 
-    # Saving
-    print(f'Saving to {args.savepath}')
-    with open(args.savepath, 'wb') as pklfile:
-        pickle.dump(output_list, pklfile)
-
-
+            if args.savepath is not None:
+                print(f'Saving to {args.savepath}')
+                with open(args.savepath, 'wb') as pklfile:
+                    pickle.dump(output_list, pklfile)
