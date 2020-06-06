@@ -100,7 +100,7 @@ def combine_mp_chunks(pkl_path):
 def combine_checkpoint_file(folder_path):
     pkl_list = [filename for filename in
                 listdir(folder_path) if filename.endswith('.pkl')]
-    
+
     output_combined = []
     for pkl_name in pkl_list:
         path = join(folder_path, pkl_name)
