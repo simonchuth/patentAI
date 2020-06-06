@@ -48,16 +48,23 @@ def predict(inputs: Inputs):
 
     term_tensor = encode_data(term)
 
+    # Add new word from context to dictionary
+    word_from_context = (set(' '.join(context).split(' ')))
+    instance_dict = vocab_dict.copy()
+    print('Adding new word from context to vocabulary')
+    for word in word_from_context:
+        instance_dict[word.lower()] = encode_data(word.lower())
+
     new_word = ''
     while True:
-        pre_word = pre_word + ' ' + new_word
+        pre_word = pre_word + ' ' + new_word.lower()
         pre_word = pre_word.strip()
         pre_word_tensor = encode_data(pre_word)
         context_combined = tf.concat([context_tensor,
                                       term_tensor,
                                       pre_word_tensor], axis=1)
         pred_tensor = model.predict(context_combined)
-        new_word = predict_word(pred_tensor, vocab_dict)
+        new_word = predict_word(pred_tensor, instance_dict, new_word)
         print(pre_word)
         if new_word == 'STOPSTOPSTOP':
             break

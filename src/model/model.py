@@ -130,7 +130,9 @@ def update_dict(base_dict, update_dict):
     return base_dict
 
 
-def predict_word(tensor, vocab_dict):
+def predict_word(tensor, vocab_dict, previous_word):
     sorted_neigh = sorted(vocab_dict.keys(),
-                        key=lambda word: euclidean(vocab_dict[word], tensor))
-    return sorted_neigh[0]
+                          key=lambda word: euclidean(vocab_dict[word], tensor))
+    for word in sorted_neigh:
+        if word.lower() != previous_word.lower():
+            return word.lower()
