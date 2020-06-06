@@ -1,5 +1,5 @@
-def chunk_doc(target_doc, num_worker):
-    chunk_size = int(len(target_doc) / num_worker) + 1
-    chunklist = [target_doc[x:x + chunk_size] for
-                 x in range(0, len(target_doc), chunk_size)]
+def chunk_doc(input_list, num_chunks):
+    chunk_size = int(len(input_list) / num_chunks) + 1
+    chunklist = [input_list[x:x + chunk_size] for
+                 x in range(0, len(input_list), chunk_size)]
     return chunklist
