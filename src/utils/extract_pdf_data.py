@@ -1,6 +1,7 @@
 import re
 from tqdm import tqdm
 
+
 def process_definition(text_pages,
                        definition_pattern=r'[Tt]he term ".+?".+?\.'):
     pages = [page.replace('\n', '')[1:].strip() for page in text_pages]
