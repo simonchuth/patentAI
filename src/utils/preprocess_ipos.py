@@ -19,11 +19,24 @@ def fetch_patent_url(numdays=3650):
     for date in tqdm(ipos_format):
         api = url + date
         result = requests.get(api).json()
+
+        if 'message' in result.keys():  # Pick up if error message was returned
+            continue
+
         applications = result['items']
-        for app in applications:
-            documents = app['documents']
+
+        for ap in applications:
+            if ap['applicant'][0]['countryOfIncorporationOrResidence']['code']\
+                    not in ['UK', 'US', 'SG']:
+                continue
+
+            documents = ap['documents']
             for d in documents:
-                if d['docType']['description'] == 'Description (with claims)':
+                if d['docType']['description'] == \
+                        'Description (with claims)':
+                    target_doc.append(d['url'])
+                elif d['docType']['description'] == \
+                        'Full Specification (Grant)':
                     target_doc.append(d['url'])
     return target_doc
 
@@ -53,7 +66,17 @@ def extract_claim_text(txt):
     return claim_pages, text_pages
 
 
-def main_extraction(target_doc, L=None, checkpoint=None):
+def field_keyword_filter(intro, keywords=['bio', 'pharm', 'medic']):
+    for word in keywords:
+        if word in intro.lower():
+            return True
+    return False
+
+
+def main_extraction(target_doc,
+                    L=None,
+                    checkpoint=None,
+                    keywords=['bio', 'pharm', 'medic']):
     access_problem = []
     data = []
     failed_extract_text = []
@@ -70,7 +93,8 @@ def main_extraction(target_doc, L=None, checkpoint=None):
         try:
             intro = extract_intro(txt)
             claim_pages, text_pages = extract_claim_text(txt)
-            data.append([intro, claim_pages, text_pages, txt])
+            if field_keyword_filter(intro, keywords):
+                data.append([intro, claim_pages, text_pages, txt])
         except Exception:
             failed_extract_text.append(txt)
     output = [data, failed_extract_text, access_problem]

@@ -1,6 +1,6 @@
 import pickle
-from multiprocessing import Process, Manager, cpu_count
 import argparse
+from multiprocessing import Process, Manager, cpu_count
 
 from src.utils.preprocess_ipos import fetch_patent_url
 from src.utils.preprocess_ipos import main_extraction
@@ -16,6 +16,8 @@ if __name__ == "__main__":
     parser.add_argument("--savepath", default=None)
     parser.add_argument("--mp", type=bool, default=False)
     parser.add_argument("--num_chunks", type=int, default=None)
+    parser.add_argument("--keywords", nargs='+',
+                        default=['bio', 'pharm', 'medic'])
 
     args = parser.parse_args()
     target_doc = None
@@ -41,7 +43,10 @@ if __name__ == "__main__":
                 processes = []
                 for chunk_items in chunk_list:
                     p = Process(target=main_extraction,
-                                args=(chunk_items, L, args.checkpoint_save))
+                                args=(chunk_items,
+                                      L,
+                                      args.checkpoint_save,
+                                      args.keywords))
                     p.start()
                     processes.append(p)
                 for p in processes:
