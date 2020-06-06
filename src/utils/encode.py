@@ -18,9 +18,11 @@ def encode_dict(unique_words, vocab_size=1000000, max_length=50):
 
     count = 0
     for i in idx:
+        print(f'Percentage Completed: {count/vocab_size*100}%')
         if (len(unique_words[i]) < max_length) and (count < vocab_size):
             vocab_dict[unique_words[i]] = encoder([unique_words[i]])
             count += 1
         elif count >= vocab_size:
             break
+    return vocab_dict
 
