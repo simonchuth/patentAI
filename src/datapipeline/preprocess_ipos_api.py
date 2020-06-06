@@ -15,6 +15,7 @@ if __name__ == "__main__":
     parser.add_argument("--checkpoint_save", default=None)
     parser.add_argument("--savepath", default=None)
     parser.add_argument("--mp", type=bool, default=False)
+    parser.add_argument("--num_chunks", type=int, default=None)
 
     args = parser.parse_args()
     target_doc = None
@@ -28,12 +29,15 @@ if __name__ == "__main__":
 
     if (target_doc is not None) and (args.savepath is not None):
         if args.mp:
-            num_worker = cpu_count()
-            chunk_list = chunk_doc(target_doc, num_worker)
+            if args.num_chunks is None:
+                num_chunks = cpu_count()
+            else:
+                num_chunks = args.num_chunks
+            chunk_list = chunk_doc(target_doc, num_chunks)
             print(f'Chunked into {len(chunk_list)} chunks')
 
             with Manager() as manager:
-                L = manager.list()  
+                L = manager.list()
                 processes = []
                 for chunk_items in chunk_list:
                     p = Process(target=main_extraction,
