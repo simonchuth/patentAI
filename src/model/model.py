@@ -9,6 +9,8 @@ from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.models import load_model
 
+from scipy.spatial.distance import euclidean
+
 
 class BaseAPI:
     def __init__(self, output_path=None, es_patience=10):
@@ -126,3 +128,9 @@ def update_dict(base_dict, update_dict):
     for key in update_dict:
         base_dict[key] = update_dict[key]
     return base_dict
+
+
+def predict_word(tensor, vocab_dict):
+    sorted_neigh = sorted(vocab_dict.keys(),
+                        key=lambda word: euclidean(vocab_dict[word], tensor))
+    return sorted_neigh[0]
