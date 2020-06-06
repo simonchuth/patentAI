@@ -1,8 +1,9 @@
 import datetime
 from tqdm import tqdm
 import pickle
-import requests, PyPDF2, io
-import re
+import requests
+import PyPDF2
+import io
 from os.path import join
 
 
@@ -12,19 +13,18 @@ def fetch_patent_url(numdays=3650):
     weekday = [date for date in date_list if date.weekday() < 5]
     ipos_format = [date.strftime('%Y-%m-%d') for date in weekday]
 
-    ipos_api = 'https://api.data.gov.sg/v1/technology/ipos/patents?lodgement_date='
+    url = 'https://api.data.gov.sg/v1/technology/ipos/patents?lodgement_date='
     target_doc = []
     for date in tqdm(ipos_format):
-        api = ipos_api + date
+        api = url + date
         result = requests.get(api).json()
         applications = result['items']
         for app in applications:
             documents = app['documents']
-            for doc in documents:
-                if doc['docType']['description'] == 'Description (with claims)':
-                    target_doc.append(doc['url'])
+            for d in documents:
+                if d['docType']['description'] == 'Description (with claims)':
+                    target_doc.append(d['url'])
     return target_doc
-
 
 
 def load_web_pdf(url):
@@ -35,7 +35,8 @@ def load_web_pdf(url):
         num_pages = read_pdf.getNumPages()
         txt = [read_pdf.getPage(i).extractText() for i in range(num_pages)]
         return txt
-    
+
+
 def extract_intro(txt):
     intro = txt[0:2]
     intro = ' '.join(intro)
@@ -43,7 +44,9 @@ def extract_intro(txt):
 
 
 def extract_claim_text(txt):
-    claims_start_page = [i for i, page in enumerate(txt) if ('CLAIMS' in page) or ('what is claimed is' in page.lower())][0]
+    claims_start_page = [i for i, page in enumerate(txt) if
+                         ('CLAIMS' in page) or
+                         ('what is claimed is' in page.lower())][0]
     claim_pages = txt[claims_start_page:]
     text_pages = txt[0:claims_start_page]
     return claim_pages, text_pages
@@ -61,7 +64,7 @@ def main_extraction(target_doc, L=None, checkpoint=None):
         except Exception:
             access_problem.append(url)
             continue
-        
+
         # Extract text
         try:
             intro = extract_intro(txt)
@@ -85,6 +88,9 @@ def combine_mp_chunks(pkl_path):
     pkl_path = 'pkl_files/ipos_extracted.pkl'
     with open(pkl_path, 'rb') as file:
         combined_output = pickle.load(file)
-    data_list = [data for data, failed_extract_text, access_problem in combined_output]
+
+    data_list = [data for data, failed_extract_text, access_problem in
+                 combined_output]
+
     data_combined = [app for data in data_list for app in data]
     return data_combined
