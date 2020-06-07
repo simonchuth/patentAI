@@ -1,40 +1,38 @@
-import os
-
 from tensorflow.keras import Sequential
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.losses import CosineSimilarity
-from tensorflow.keras.callbacks import TensorBoard
 from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.models import load_model
 
 from scipy.spatial.distance import euclidean
 
+from src.utils.general import join_path
+from src.utils.general import check_mkdir
+
 
 class BaseAPI:
-    def __init__(self, output_path=None, es_patience=10):
+    def __init__(self, output_path=None, es_patience=30):
         if output_path is None:
             callbacks = None
             final_model = None
         else:
             # Make directory for outputs
-            os.mkdir(output_path + '/logs')
-            os.mkdir(output_path + '/checkpoints')
-            os.mkdir(output_path + '/models')
+            check_mkdir(join_path(output_path, 'checkpoints'))
+            check_mkdir(join_path(output_path, 'models'))
 
-            tensorboard_logdir = output_path + '/logs'
-            checkpoint_model = output_path + '/checkpoints/epoch{epoch}.h5'
-            best_model = output_path + '/models/best_model.h5'
-            final_model = output_path + '/models/final_model.h5'
+            checkpoint_model = join_path(output_path, ['checkpoints',
+                                                       'epoch{epoch}.h5'])
+            best_model = join_path(output_path, ['models', 'best_model.h5'])
+            final_model = join_path(output_path, ['models', 'final_model.h5'])
 
             callbacks = [EarlyStopping(patience=es_patience),
                          ModelCheckpoint(filepath=checkpoint_model,
                                          monitor='val_loss'),
                          ModelCheckpoint(filepath=best_model,
                                          monitor='val_loss',
-                                         save_best_only=True),
-                         TensorBoard(log_dir=tensorboard_logdir)]
+                                         save_best_only=True)]
 
         self.params = {'batch_size': 10000,
                        'epochs': 1000,
@@ -84,12 +82,12 @@ class BaseAPI:
 class DNN(BaseAPI):
     def __init__(self,
                  output_path=None,
-                 es_patience=5,
-                 input_dim=2048,
+                 es_patience=15,
+                 input_dim=2052,
                  output_dim=512):
 
         BaseAPI.__init__(self, output_path, es_patience)
-        DNN_params = {'layers': [1024, 1024, 512, 512],
+        DNN_params = {'layers': [2048, 1024, 1024, 512, 512],
                       'optimizer': Adam(),
                       'loss': CosineSimilarity(),
                       'metrics': ['cosine_similarity'],
