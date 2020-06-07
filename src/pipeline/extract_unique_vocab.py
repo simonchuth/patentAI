@@ -74,8 +74,9 @@ if __name__ == "__main__":
     print(f'Number of unique words: {num_word}')
 
     print('Encoding')
+    vocab_size = min(num_word, args.vocab_size)
     vocab_dict = encode_dict(unique_word,
-                             vocab_size=args.vocab_size,
+                             vocab_size=vocab_size,
                              max_length=args.max_length)
     print('Completed encoding')
 
