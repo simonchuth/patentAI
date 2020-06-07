@@ -43,7 +43,7 @@ if __name__ == "__main__":
     else:
         train_chunks = [train_set]
 
-    print(f'Number of chunks: {len(train_set)}')
+    print(f'Number of chunks: {len(train_chunks)}')
 
     for i, dataset in enumerate(train_chunks):
         print(f'Encoding train chunk {i}')
