@@ -33,7 +33,7 @@ if __name__ == "__main__":
     dataset = pickle_load(extracted_pkl)
 
     random.Random(1).shuffle(dataset)
-    test_size = max(int(len(dataset) * args.test_ratio), args.chunk_size)
+    test_size = min(int(len(dataset) * args.test_ratio), args.chunk_size)
     test_set = dataset[:test_size]
     train_set = dataset[test_size:]
 
