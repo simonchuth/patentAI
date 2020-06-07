@@ -6,6 +6,7 @@ import tensorflow as tf
 from src.model.model import DNN
 from src.model.model import predict_word
 from src.utils.encode import encode_data
+from src.utils.encode import encode_preword_len
 from src.utils.general import pickle_load
 
 model_path = 'models/model_on_data12x20.h5'
@@ -37,36 +38,44 @@ def predict(inputs: Inputs):
 
     inputs = inputs.dict()
 
-    claim = inputs['claim']
+    claims = inputs['claim']
     intro = inputs['intro']
     term = inputs['term']
-    pre_word = 'The term "' + term + '"'
+    preword = 'The term "' + term + '"'
 
-    context = [intro, claim]
-    context_tensor = encode_data(context)
-    context_tensor = tf.reshape(context_tensor, [1, 1024])
+    intro_tensor = encode_data(intro)
+    claims_tensor = encode_data(claims)
 
     term_tensor = encode_data(term)
 
     # Add new word from context to dictionary
-    word_from_context = (set(' '.join(context).split(' ')))
+    intro_claims = [intro, claims]
+    word_from_context = (set(' '.join(intro_claims).split(' ')))
     instance_dict = vocab_dict.copy()
     print('Adding new word from context to vocabulary')
     for word in word_from_context:
-        instance_dict[word.lower()] = encode_data(word.lower())
+        if word.lower() not in instance_dict.keys():
+            instance_dict[word.lower()] = encode_data(word.lower())
 
     new_word = ''
     while True:
-        pre_word = pre_word + ' ' + new_word.lower()
-        pre_word = pre_word.strip()
-        pre_word_tensor = encode_data(pre_word)
-        context_combined = tf.concat([context_tensor,
-                                      term_tensor,
-                                      pre_word_tensor], axis=1)
+        preword = preword + ' ' + new_word.lower()
+        preword = preword.strip()
+        preword_tensor = encode_data(preword)
+        len_preword_tensor = encode_preword_len(preword)
+
+        context = [intro_tensor,
+                   claims_tensor,
+                   term_tensor,
+                   preword_tensor,
+                   len_preword_tensor]
+
+        context_combined = tf.concat(context, axis=1)
+
         pred_tensor = model.predict(context_combined)
         new_word = predict_word(pred_tensor, instance_dict, new_word)
-        print(pre_word)
+        print(preword)
         if new_word == 'stopstopstop':
             break
 
-    return {'Result': pre_word}
+    return {'Result': preword}
