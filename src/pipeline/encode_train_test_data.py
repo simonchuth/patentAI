@@ -30,7 +30,7 @@ if __name__ == "__main__":
                                                      'extracted.pkl'])
         tensor_folder = join_path(args.data_folder, 'tensor')
 
-    dataset = pickle_load(args.extracted_pkl)
+    dataset = pickle_load(extracted_pkl)
 
     random.Random(1).shuffle(dataset)
     test_size = max(int(len(dataset) * args.test_ratio), args.chunk_size)
@@ -42,6 +42,8 @@ if __name__ == "__main__":
         train_chunks = chunk_doc(train_set, num_chunks)
     else:
         train_chunks = [train_set]
+
+    print(f'Number of chunks: {len(train_set)}')
 
     for i, dataset in enumerate(train_chunks):
         print(f'Encoding train chunk {i}')
