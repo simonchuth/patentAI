@@ -29,6 +29,12 @@ if __name__ == "__main__":
         extracted_pkl = join_path(args.data_folder, ['extracted_txt',
                                                      'extracted.pkl'])
         tensor_folder = join_path(args.data_folder, 'tensor')
+        params_path = join_path(args.data_folder, 'params.pkl')
+        params = pickle_load(params_path)
+        params['encode_data_test_ratio'] = args.test_ratio
+        params['encode_data_random_seed'] = args.random_seed
+        params['encode_data_chunk_size'] = args.chunk_size
+        pickle_save(params, params_path)
 
     dataset = pickle_load(extracted_pkl)
 

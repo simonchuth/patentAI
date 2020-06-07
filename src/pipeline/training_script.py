@@ -4,6 +4,7 @@ import argparse
 import tensorflow as tf
 
 from src.utils.general import pickle_load
+from src.utils.general import pickle_save
 from src.utils.general import join_path
 from src.utils.general import check_mkdir
 
@@ -19,7 +20,6 @@ if __name__ == "__main__":
     parser.add_argument("--pretrain_path", default=None)
     parser.add_argument("--model_output", default=None)
     parser.add_argument("--tensor_folder", default=None)
-    parser.add_argument("--test_ratio", type=float, default=0.1)
     parser.add_argument("--data_folder", default=None)
     parser.add_argument("--remark", default=None)
 
@@ -52,6 +52,15 @@ if __name__ == "__main__":
 
     if args.pretrain_path is not None:
         model.load_model(args.pretrain_path)
+
+    if args.data_folder is not None:
+        params_path = join_path(args.data_folder, 'params.pkl')
+        params = pickle_load(params_path)
+        model_params = model.get_params()
+        for key in model_params.keys():
+            key_name = 'model_params_' + key
+            params[key_name] = model_params[key]
+        pickle_save(params, params_path)
 
     model.fit(X_train, y_train, X_test, y_test)
 

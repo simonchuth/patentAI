@@ -8,6 +8,7 @@ from src.utils.preprocess_ipos import extract_app
 from src.utils.extract_pdf_data import extract_unique_vocab
 
 from src.utils.general import pickle_save
+from src.utils.general import pickle_load
 from src.utils.general import join_path
 
 from src.utils.mp_preprocess import chunk_doc
@@ -42,6 +43,11 @@ if __name__ == "__main__":
         savepath = join_path(args.data_folder, ['vocab', 'vocab_tensor.pkl'])
         chunk_folder = join_path(args.data_folder, 'search_chunks')
         chunk_list = combine_checkpoint_file(chunk_folder)
+        params_path = join_path(args.data_folder, 'params.pkl')
+        params = pickle_load(params_path)
+        params['extract_vocab_vocab_size'] = args.vocab_size
+        params['extract_vocab_max_length'] = args.max_length
+        pickle_save(params, params_path)
 
     app_list = extract_app(chunk_list)
     print(f'Total number of applications: {len(app_list)}')
