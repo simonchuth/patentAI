@@ -1,5 +1,6 @@
 import pickle
 from os.path import join
+import os
 
 
 def pickle_save(data_var, pkl_path, mode='wb'):
@@ -21,3 +22,8 @@ def join_path(root_path, path_list):
     for path in path_list:
         joined_path = join(joined_path, path)
     return joined_path
+
+
+def check_mkdir(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
