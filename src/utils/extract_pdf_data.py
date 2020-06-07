@@ -1,4 +1,5 @@
 import re
+import gc
 from tqdm import tqdm
 
 
@@ -29,4 +30,6 @@ def extract_unique_vocab(app_list):
         for definition in app[2]:
             definition = definition.lower()
             unique_word = unique_word.union(set(definition.split(' ')))
+            del definition
+            gc.collect()
     return unique_word

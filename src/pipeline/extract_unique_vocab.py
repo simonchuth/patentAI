@@ -44,7 +44,10 @@ if __name__ == "__main__":
         chunk_folder = join_path(args.data_folder, 'search_chunks')
         chunk_list = combine_checkpoint_file(chunk_folder)
         params_path = join_path(args.data_folder, 'params.pkl')
-        params = pickle_load(params_path)
+        try:
+            params = pickle_load(params_path)
+        except Exception:
+            params = {}
         params['extract_vocab_vocab_size'] = args.vocab_size
         params['extract_vocab_max_length'] = args.max_length
         pickle_save(params, params_path)

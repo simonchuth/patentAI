@@ -55,7 +55,10 @@ if __name__ == "__main__":
 
     if args.data_folder is not None:
         params_path = join_path(args.data_folder, 'params.pkl')
-        params = pickle_load(params_path)
+        try:
+            params = pickle_load(params_path)
+        except Exception:
+            params = {}
         model_params = model.get_params()
         for key in model_params.keys():
             key_name = 'model_params_' + key
