@@ -25,7 +25,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--checkpoint_folder", default=None)
     parser.add_argument("--savepath", default=None)
-    parser.add_argument("--datafolder", default=None)
+    parser.add_argument("--data_folder", default=None)
     parser.add_argument("--mp", type=bool, default=False)
     parser.add_argument("--vocab_size", type=int, default=500000)
     parser.add_argument("--max_length", type=int, default=50)
