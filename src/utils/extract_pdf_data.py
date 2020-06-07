@@ -27,5 +27,6 @@ def extract_unique_vocab(app_list):
     unique_word = set()
     for app in tqdm(app_list):
         for definition in app[2]:
+            definition = definition.lower()
             unique_word = unique_word.union(set(definition.split(' ')))
     return unique_word
