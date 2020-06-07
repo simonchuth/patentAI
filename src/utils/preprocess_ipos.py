@@ -8,11 +8,14 @@ from os import listdir
 from os.path import join
 
 
-def fetch_patent_url(numdays=3650):
-    base = datetime.datetime.today()
-    date_list = [base - datetime.timedelta(days=x) for x in range(numdays)]
-    weekday = [date for date in date_list if date.weekday() < 5]
-    ipos_format = [date.strftime('%Y-%m-%d') for date in weekday]
+def fetch_patent_url(numdays=3650, date_list=None):
+    if date_list is None:
+        base = datetime.datetime.today()
+        date_list = [base - datetime.timedelta(days=x) for x in range(numdays)]
+        weekday = [date for date in date_list if date.weekday() < 5]
+        ipos_format = [date.strftime('%Y-%m-%d') for date in weekday]
+    else:
+        ipos_format = date_list
 
     url = 'https://api.data.gov.sg/v1/technology/ipos/patents?lodgement_date='
     target_doc = []
@@ -37,7 +40,7 @@ def fetch_patent_url(numdays=3650):
                 elif d['docType']['description'] == \
                         'Full Specification (Grant)':
                     target_doc.append(d['url'])
-    return target_doc
+    return target_doc, ipos_format
 
 
 def english_origin(app):
