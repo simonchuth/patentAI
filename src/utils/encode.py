@@ -58,7 +58,7 @@ def encode_dataset(dataset, term_pattern=r'".+?"'):
         intro_tensor = encode_data(intro)
         claims_tensor = encode_data(claims)
 
-        definition = app[2]
+        definition = app[2][0]
         term = re.findall(term_pattern, definition)[0]
         term_tensor = encode_data(term)
 
@@ -96,5 +96,7 @@ def encode_preword_len(preword):
 
     len_preword_tensor = convert_to_tensor(len_preword,
                                            dtype=tf.float32)
+
+    len_preword_tensor = tf.reshape(len_preword_tensor, [1, 4])
 
     return len_preword_tensor
