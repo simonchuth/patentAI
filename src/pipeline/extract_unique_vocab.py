@@ -8,9 +8,11 @@ from src.utils.preprocess_ipos import extract_app
 from src.utils.extract_pdf_data import extract_unique_vocab
 
 from src.utils.general import pickle_save
-from src.utils.general import pickle_load
+from src.utils.general import join_path
 
 from src.utils.mp_preprocess import chunk_doc
+
+from src.utils.encode import encode_dict
 
 
 def mp_unique_word(L, chunk_app_list):
@@ -22,20 +24,26 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--checkpoint_folder", default=None)
-    parser.add_argument("--combined_file", default=None)
     parser.add_argument("--savepath", default=None)
+    parser.add_argument("--datafolder", default=None)
     parser.add_argument("--mp", type=bool, default=False)
+    parser.add_argument("--vocab_size", type=int, default=500000)
+    parser.add_argument("--max_length", type=int, default=50)
 
     args = parser.parse_args()
 
-    if args.checkpoint_folder is not None:
-        output_list = combine_checkpoint_file(args.checkpoint_folder)
-    elif args.combined_file is not None:
-        output_list = pickle_load(args.combined_file)
+    if args.data_folder is None:
+        if args.checkpoint_folder is not None:
+            chunk_list = combine_checkpoint_file(args.checkpoint_folder)
+        else:
+            raise FileNotFoundError('No file path was provided')
+        savepath = args.savepath
     else:
-        raise FileNotFoundError('No file path was provided')
+        savepath = join_path(args.data_folder, ['vocab', 'vocab_tensor.pkl'])
+        chunk_folder = join_path(args.data_folder, 'search_chunks')
+        chunk_list = combine_checkpoint_file(chunk_folder)
 
-    app_list = extract_app(output_list)
+    app_list = extract_app(chunk_list)
     print(f'Total number of applications: {len(app_list)}')
 
     if args.mp:
@@ -62,6 +70,14 @@ if __name__ == "__main__":
     else:
         unique_word = extract_unique_vocab(app_list)
 
-    if args.savepath is not None:
-        print(f'Saving to {args.savepath}')
-        pickle_save(unique_word, args.savepath)
+    num_word = len(unique_word)
+    print(f'Number of unique words: {num_word}')
+
+    print('Encoding')
+    vocab_dict = encode_dict(unique_word,
+                             vocab_size=args.vocab_size,
+                             max_length=args.max_length)
+    print('Completed encoding')
+
+    print(f'Saving to {savepath}')
+    pickle_save(unique_word, savepath)
