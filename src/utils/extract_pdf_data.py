@@ -26,7 +26,6 @@ def process_intro(intro_pages):
 def extract_unique_vocab(app_list):
     unique_word = set()
     for app in tqdm(app_list):
-        for page in app[3]:
-            page = page.replace('\n', ' ').replace('  ', ' ')
-            unique_word = unique_word.union(set(page.split(' ')))
+        for definition in app[2]:
+            unique_word = unique_word.union(set(definition.split(' ')))
     return unique_word
