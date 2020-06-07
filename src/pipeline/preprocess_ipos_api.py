@@ -30,6 +30,7 @@ if __name__ == "__main__":
             target_doc = pickle.load(pklfile)
 
     if target_doc is not None:
+        print(f'Number of target documents: {len(target_doc)}')
         if args.mp:
             if args.num_chunks is None:
                 num_chunks = cpu_count()

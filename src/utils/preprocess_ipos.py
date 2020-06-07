@@ -25,12 +25,11 @@ def fetch_patent_url(numdays=3650):
 
         applications = result['items']
 
-        for ap in applications:
-            if ap['applicant'][0]['countryOfIncorporationOrResidence']['code']\
-                    not in ['UK', 'US', 'SG']:
+        for app in applications:
+            if not english_origin(app):
                 continue
 
-            documents = ap['documents']
+            documents = app['documents']
             for d in documents:
                 if d['docType']['description'] == \
                         'Description (with claims)':
@@ -39,6 +38,16 @@ def fetch_patent_url(numdays=3650):
                         'Full Specification (Grant)':
                     target_doc.append(d['url'])
     return target_doc
+
+
+def english_origin(app):
+    try:
+        eng = app['applicant'][0]['countryOfIncorporationOrResidence']['code']\
+                     in ['UK', 'US', 'SG']
+        return eng
+
+    except Exception:
+        return False
 
 
 def load_web_pdf(url):
