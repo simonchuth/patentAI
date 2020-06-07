@@ -51,13 +51,13 @@ if __name__ == "__main__":
         output = [context_tensor, target_tensor]
         train_name = str(i) + '_train.pkl'
         train_path = join_path(tensor_folder, train_name)
-        pickle_save(train_path)
+        pickle_save(output, train_path)
 
     print('Encoding test chunk')
     context_tensor, target_tensor = encode_dataset(test_set)
     output = [context_tensor, target_tensor]
     test_name = str(i) + '_test.pkl'
     test_path = join_path(tensor_folder, test_name)
-    pickle_save(test_path)
+    pickle_save(output, test_path)
 
     print('Completed')
