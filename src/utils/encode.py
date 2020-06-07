@@ -55,12 +55,12 @@ def encode_dataset(dataset, term_pattern=r'".+?"'):
     for app in tqdm(dataset):
         intro = app[0]
         claims = ' '.join(app[1])
-        intro_tensor = encoder(intro)
-        claims_tensor = encoder(claims)
+        intro_tensor = encode_data(intro)
+        claims_tensor = encode_data(claims)
 
         definition = app[2]
         term = re.findall(term_pattern, definition)[0]
-        term_tensor = encoder([term])
+        term_tensor = encode_data(term)
 
         definition_tokens = text_to_word_sequence(definition)
         definition_tokens.append('STOPSTOPSTOP')
@@ -69,8 +69,8 @@ def encode_dataset(dataset, term_pattern=r'".+?"'):
             preword = ' '.join(definition_tokens[:i])
             target_word = definition_tokens[i]
 
-            preword_tensor = encoder([preword])
-            target_word_tensor = encoder([target_word])
+            preword_tensor = encode_data(preword)
+            target_word_tensor = encode_data(target_word)
             len_preword_tensor = encode_preword_len(preword)
 
             context = [intro_tensor,
