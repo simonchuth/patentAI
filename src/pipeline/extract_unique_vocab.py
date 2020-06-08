@@ -66,7 +66,7 @@ if __name__ == "__main__":
         definition = definition.lower().split(' ')
         definition = [w for w in definition if len(w) < args.max_length]
         for word in definition:
-            if (word.alpha()) and (word.lower() not in args.error_word_list):
+            if (word.isalpha()) and (word.lower() not in args.error_word_list):
                 try:
                     word_count[word] = word_count[word] + 1
                     if word_count[word] > args.min_freq:
