@@ -27,7 +27,7 @@ if __name__ == "__main__":
         setup_folder(args.data_folder)
         extracted_pkl = join_path(args.data_folder, ['extracted_txt',
                                                      'extracted.pkl'])
-        savepath = join_path(args.data_folder, ['definition', 'def_list.pkl'])
+        savepath = join_path(args.data_folder, ['definition', 'def_dict.pkl'])
 
     dataset = pickle_load(extracted_pkl)
 
