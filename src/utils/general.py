@@ -34,3 +34,4 @@ def count_word(count_dict, word):
         count_dict[word] = count_dict[word] + 1
     except KeyError:
         count_dict[word] = 1
+    return count_dict

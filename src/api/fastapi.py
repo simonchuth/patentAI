@@ -42,7 +42,7 @@ def predict(inputs: Inputs):
 
     claims = inputs['claim']
     intro = inputs['intro']
-    term = inputs['term']
+    term = inputs['term'].strip()
     preword = 'The term "' + term + '"'
 
     intro_tensor = encode_data(intro)
@@ -61,9 +61,10 @@ def predict(inputs: Inputs):
            (word.isalnum()):
             instance_dict[word.lower()] = encode_data(word.lower())
 
-    new_word = ''
+    new_word = ' '
     word_count = {}
     while True:
+        print(preword)
         preword = preword + ' ' + new_word
         preword = preword.strip()
         preword_tensor = encode_data(preword)
@@ -82,8 +83,9 @@ def predict(inputs: Inputs):
                                 instance_dict,
                                 new_word,
                                 word_count)
+
         word_count = count_word(word_count, new_word)
-        print(preword)
+        
         if new_word == 'stopstopstop':
             break
 

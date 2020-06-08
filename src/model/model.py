@@ -132,6 +132,8 @@ def predict_word(tensor, vocab_dict, previous_word, word_count):
     sorted_neigh = sorted(vocab_dict.keys(),
                           key=lambda word: euclidean(vocab_dict[word], tensor))
     for word in sorted_neigh:
-        if (word.lower() != previous_word.lower()) and \
-           ((word in word_count.keys()) and (word_count[word] > 5)):
+        if word not in word_count.keys():
+            return word.lower()
+        elif (word.lower() != previous_word.lower()) and \
+             (word_count[word] < 5):
             return word.lower()
