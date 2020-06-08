@@ -8,6 +8,7 @@ from src.model.model import predict_word
 from src.utils.encode import encode_data
 from src.utils.encode import encode_preword_len
 from src.utils.general import pickle_load
+from src.utils.general import count_word
 
 
 vocab_dict_path = 'resources/vocab_tensor.pkl'
@@ -61,6 +62,7 @@ def predict(inputs: Inputs):
             instance_dict[word.lower()] = encode_data(word.lower())
 
     new_word = ''
+    word_count = {}
     while True:
         preword = preword + ' ' + new_word
         preword = preword.strip()
@@ -76,7 +78,11 @@ def predict(inputs: Inputs):
         context_combined = tf.concat(context, axis=1)
 
         pred_tensor = model.predict(context_combined)
-        new_word = predict_word(pred_tensor, instance_dict, new_word)
+        new_word = predict_word(pred_tensor,
+                                instance_dict,
+                                new_word,
+                                word_count)
+        word_count = count_word(word_count, new_word)
         print(preword)
         if new_word == 'stopstopstop':
             break

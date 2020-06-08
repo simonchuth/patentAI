@@ -27,3 +27,10 @@ def join_path(root_path, path_list):
 def check_mkdir(path):
     if not os.path.exists(path):
         os.makedirs(path)
+
+
+def count_word(count_dict, word):
+    try:
+        count_dict[word] = count_dict[word] + 1
+    except KeyError:
+        count_dict[word] = 1
