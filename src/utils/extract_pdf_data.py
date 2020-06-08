@@ -42,7 +42,7 @@ def extract_definition(dataset):
             term = extract_term_from_definition(definition).lower()
             try:
                 def_example[term] = def_example[term].append(definition)
-            except KeyError:
+            except Exception:
                 def_example[term] = [definition]
     return def_example
 
