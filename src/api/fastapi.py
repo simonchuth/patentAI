@@ -21,6 +21,8 @@ model.load_model(model_path)
 vocab_dict = pickle_load(vocab_dict_path)
 vocab_dict['STOPSTOPSTOP'] = encode_data('STOPSTOPSTOP')
 
+def_dict = pickle_load(definition_path)
+
 
 class Inputs(BaseModel):
     claim: str
@@ -42,11 +44,10 @@ def retrieve_def(inputs: Inputs):
     inputs = inputs.dict()
     term = inputs['term'].strip()
 
-    def_dict = pickle_load(definition_path)
     try:
         def_list = def_dict[term]
-    except KeyError:
-        def_list = ['No examples could be found']
+    except Exception:
+        def_list = None
 
     return {'definition_list': def_list}
 

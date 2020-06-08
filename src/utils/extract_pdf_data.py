@@ -49,4 +49,5 @@ def extract_definition(dataset):
 
 def extract_term_from_definition(definition, term_pattern=r'".+?"'):
     term = re.findall(term_pattern, definition)[0]
+    term = term.replace('"', '')
     return term
