@@ -60,30 +60,31 @@ def encode_dataset(dataset, term_pattern=r'".+?"'):
         intro_tensor = encode_data(intro)
         claims_tensor = encode_data(claims)
 
-        definition = app[2][0]
-        term = extract_term_from_definition(definition)
-        term_tensor = encode_data(term)
+        definitions = app[2]
+        for def_entry in definitions:
+            term = extract_term_from_definition(def_entry)
+            term_tensor = encode_data(term)
 
-        definition_tokens = text_to_word_sequence(definition)
-        definition_tokens.append('STOPSTOPSTOP')
+            definition_tokens = text_to_word_sequence(def_entry)
+            definition_tokens.append('STOPSTOPSTOP')
 
-        for i in range(4, len(definition_tokens)):
-            preword = ' '.join(definition_tokens[:i])
-            target_word = definition_tokens[i]
+            for i in range(4, len(definition_tokens)):
+                preword = ' '.join(definition_tokens[:i])
+                target_word = definition_tokens[i]
 
-            preword_tensor = encode_data(preword)
-            target_word_tensor = encode_data(target_word)
-            len_preword_tensor = encode_preword_len(preword)
+                preword_tensor = encode_data(preword)
+                target_word_tensor = encode_data(target_word)
+                len_preword_tensor = encode_preword_len(preword)
 
-            context = [intro_tensor,
-                       claims_tensor,
-                       term_tensor,
-                       preword_tensor,
-                       len_preword_tensor]
+                context = [intro_tensor,
+                           claims_tensor,
+                           term_tensor,
+                           preword_tensor,
+                           len_preword_tensor]
 
-            context_combined = tf.concat(context, axis=1)
-            context_tensor.append(context_combined)
-            target_tensor.append(target_word_tensor)
+                context_combined = tf.concat(context, axis=1)
+                context_tensor.append(context_combined)
+                target_tensor.append(target_word_tensor)
 
     context_tensor = tf.concat(context_tensor, axis=0)
     target_tensor = tf.concat(target_tensor, axis=0)
