@@ -8,7 +8,6 @@ from src.model.model import predict_word
 from src.utils.encode import encode_data
 from src.utils.encode import encode_preword_len
 from src.utils.general import pickle_load
-from src.utils.general import join_path
 
 
 vocab_dict_path = 'resources/vocab_tensor.pkl'
@@ -56,12 +55,14 @@ def predict(inputs: Inputs):
     instance_dict = vocab_dict.copy()
     print('Adding new word from context to vocabulary')
     for word in word_from_context:
-        if word.lower() not in instance_dict.keys():
+        if (word not in instance_dict.keys()) and \
+           (word.lower() not in instance_dict.keys()) and \
+           (word.isalnum()):
             instance_dict[word.lower()] = encode_data(word.lower())
 
     new_word = ''
     while True:
-        preword = preword + ' ' + new_word.lower()
+        preword = preword + ' ' + new_word
         preword = preword.strip()
         preword_tensor = encode_data(preword)
         len_preword_tensor = encode_preword_len(preword)
