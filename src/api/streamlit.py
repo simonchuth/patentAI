@@ -23,10 +23,18 @@ intro = st.text_area('Paste the introduction here')
 claim = st.text_area('Paste the claims here')
 term = st.text_input('Please enter the term here')
 
-if st.button('Submit'):
-    predict_api = join(api_base, 'predict')
-    inputs = {'claim': claim, 'intro': intro, 'term': term}
-    with st.spinner("Generating definition..."):
-        result = requests.post(predict_api, data=json.dumps(inputs)).json()
-    st.success('Definition generation completed')
-    st.write(result['Result'])
+if (intro != '') and (claim != '') and (term != ''):
+    if st.button('Submit'):
+        predict_api = join(api_base, 'predict')
+        def_api = join(api_base, 'retrieve_def')
+        inputs = {'claim': claim, 'intro': intro, 'term': term}
+
+        definition = requests.post(def_api, data=json.dumps(inputs)).json()
+        st.text(f'Examples of definition of "{term}""')
+        st.write(definition['definition_list'])
+
+        with st.spinner("Generating definition..."):
+            prediction = requests.post(predict_api,
+                                       data=json.dumps(inputs)).json()
+        st.success('Definition generation completed')
+        st.write(prediction['result'])

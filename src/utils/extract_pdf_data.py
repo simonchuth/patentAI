@@ -33,3 +33,21 @@ def extract_unique_vocab(app_list):
             del definition
             gc.collect()
     return unique_word
+
+
+def extract_definition(dataset):
+    def_example = {}
+    for app in tqdm(dataset):
+        for definition in app[2]:
+            term = extract_term_from_definition(definition).lower()
+            try:
+                def_example[term] = def_example[term].append(definition)
+            except Exception:
+                def_example[term] = [definition]
+    return def_example
+
+
+def extract_term_from_definition(definition, term_pattern=r'".+?"'):
+    term = re.findall(term_pattern, definition)[0]
+    term = term.replace('"', '')
+    return term
