@@ -1,5 +1,5 @@
 import random
-import re
+
 import numpy as np
 
 from tqdm import tqdm
@@ -10,6 +10,8 @@ from tensorflow_text import SentencepieceTokenizer  # noqa: F401
 import tensorflow as tf
 from tensorflow import convert_to_tensor
 from tensorflow.keras.preprocessing.text import text_to_word_sequence
+
+from src.utils.extract_pdf_data import extract_term_from_definition
 
 encoder_path = 'encoder/use4_model/'
 encoder = hub.load(encoder_path)
@@ -59,7 +61,7 @@ def encode_dataset(dataset, term_pattern=r'".+?"'):
         claims_tensor = encode_data(claims)
 
         definition = app[2][0]
-        term = re.findall(term_pattern, definition)[0]
+        term = extract_term_from_definition(definition)
         term_tensor = encode_data(term)
 
         definition_tokens = text_to_word_sequence(definition)
