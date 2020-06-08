@@ -1,4 +1,5 @@
 import argparse
+import random
 
 from tqdm import tqdm
 
@@ -44,16 +45,20 @@ if __name__ == "__main__":
             params = pickle_load(params_path)
         except Exception:
             params = {}
-        params['extract_vocab_vocab_size'] = args.vocab_size
         params['extract_vocab_max_length'] = args.max_length
         pickle_save(params, params_path)
 
     app_list = extract_app(chunk_list)
-    print(f'Total number of applications: {len(app_list)}')
+    random.shuffle(app_list)
+    subset_size = min(len(app_list),100)
+    sub_list = app_list[:subset_size]
+
+    print(f'Total number of applications: {len(sub_list)}')
 
     unique_word = {}
-    for app in tqdm(app_list):
-        definition = app[2].lower().split(' ')
+    for app in tqdm(sub_list):
+        definition = ' '.join(app[2])
+        definition = definition.lower().split(' ')
         definition = [w for w in definition if len(w) < args.max_length]
         for word in definition:
             try:
