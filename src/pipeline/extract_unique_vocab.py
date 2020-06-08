@@ -28,6 +28,7 @@ if __name__ == "__main__":
     parser.add_argument("--data_folder", default=None)
     parser.add_argument("--max_length", type=int, default=50)
     parser.add_argument("--error_word_list", nargs='+', default=[])
+    parser.add_argument("--min_freq", type=int, default=4)
 
     args = parser.parse_args()
 
@@ -48,6 +49,7 @@ if __name__ == "__main__":
             params = {}
         params['extract_vocab_max_length'] = args.max_length
         params['extract_vocab_error_word_list'] = args.error_word_list
+        params['extract_vocabmin_freq'] = args.min_freq
         pickle_save(params, params_path)
 
     app_list = extract_app(chunk_list)
@@ -58,16 +60,22 @@ if __name__ == "__main__":
     print(f'Total number of applications: {len(sub_list)}')
 
     unique_word = {}
+    word_count = {}
     for app in tqdm(sub_list):
         definition = ' '.join(app[2])
         definition = definition.lower().split(' ')
         definition = [w for w in definition if len(w) < args.max_length]
         for word in definition:
-            if (word.isalnum()) and (word.lower() not in args.error_word_list):
+            if (word.alpha()) and (word.lower() not in args.error_word_list):
                 try:
-                    unique_word[word]
+                    word_count[word] = word_count[word] + 1
+                    if word_count[word] > args.min_freq:
+                        try:
+                            unique_word[word]
+                        except KeyError:
+                            unique_word[word] = encode_data(word)
                 except KeyError:
-                    unique_word[word] = encode_data(word)
+                    word_count[word] = 1
 
     print(f'Number of unique words: {len(unique_word)}')
 
