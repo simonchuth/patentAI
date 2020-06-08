@@ -35,9 +35,9 @@ def extract_unique_vocab(app_list):
     return unique_word
 
 
-def extract_definition(app_list):
+def extract_definition(dataset):
     def_example = {}
-    for app in tqdm(app_list):
+    for app in tqdm(dataset):
         for definition in app[2]:
             term = extract_term_from_definition(definition).lower()
             try:
