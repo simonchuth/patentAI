@@ -8,9 +8,14 @@ from src.model.model import predict_word
 from src.utils.encode import encode_data
 from src.utils.encode import encode_preword_len
 from src.utils.general import pickle_load
+from src.utils.general import join_path
 
-model_path = 'models/model_on_data12x20.h5'
-vocab_dict_path = 'pkl_files/unique_vocab/unique_dict.pkl'
+
+datafolder = '~/Desktop/data/patentAI_data/1_bio_patent_15yrs'
+model_select = '2020_06_07_5layers'
+
+vocab_dict_path = join_path(datafolder, ['vocab', 'vocab_tensor.pkl'])
+model_path = join_path(datafolder, [model_select, 'models', 'best_model.h5'])
 
 model = DNN()
 model.load_model(model_path)
