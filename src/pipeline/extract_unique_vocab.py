@@ -50,7 +50,7 @@ if __name__ == "__main__":
 
     app_list = extract_app(chunk_list)
     random.shuffle(app_list)
-    subset_size = min(len(app_list),100)
+    subset_size = min(len(app_list), 100)
     sub_list = app_list[:subset_size]
 
     print(f'Total number of applications: {len(sub_list)}')
