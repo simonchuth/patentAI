@@ -13,6 +13,7 @@ from src.utils.general import count_word
 
 vocab_dict_path = 'resources/vocab_tensor.pkl'
 model_path = 'resources/model.h5'
+definition_path = 'resources/def_dict.pkl'
 
 model = DNN()
 model.load_model(model_path)
@@ -33,6 +34,18 @@ app = FastAPI()
 @app.get("/")
 def root():
     return {'Status': 'Connection Established'}
+
+
+@app.post("/retrieve_def")
+def retrieve_def(inputs: Inputs):
+    
+    inputs = inputs.dict()
+    term = inputs['term'].strip()
+
+    def_dict = pickle_load(definition_path)
+    def_list = def_dict[term]
+
+    return {'definition_list': def_list}
 
 
 @app.post("/predict")
@@ -89,4 +102,4 @@ def predict(inputs: Inputs):
         if new_word == 'stopstopstop':
             break
 
-    return {'Result': preword}
+    return {'result': preword}

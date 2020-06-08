@@ -25,8 +25,13 @@ term = st.text_input('Please enter the term here')
 
 if st.button('Submit'):
     predict_api = join(api_base, 'predict')
+    def_api = join(api_base, 'retrieve_def')
     inputs = {'claim': claim, 'intro': intro, 'term': term}
+
+    definition = requests.post(def_api, data=json.dumps(inputs)).json()
+    st.write(definition['definition_list'])
+
     with st.spinner("Generating definition..."):
-        result = requests.post(predict_api, data=json.dumps(inputs)).json()
+        prediction = requests.post(predict_api, data=json.dumps(inputs)).json()
     st.success('Definition generation completed')
-    st.write(result['Result'])
+    st.write(prediction['result'])
