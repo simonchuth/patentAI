@@ -5,21 +5,8 @@ from src.utils.preprocess_ipos import fetch_patent_url
 from src.utils.preprocess_ipos import main_extraction
 from src.utils.mp_preprocess import chunk_doc
 from src.utils.general import join_path
-from src.utils.general import check_mkdir
 from src.utils.general import pickle_save
-
-
-def setup_folder(data_folder):
-    search_chunks = join_path(args.data_folder, 'search_chunks')
-    models = join_path(args.data_folder, 'models')
-    extracted_txt = join_path(args.data_folder, 'extracted_txt')
-    tensor = join_path(args.data_folder, 'tensor')
-    vocab = join_path(args.data_folder, 'vocab')
-    check_mkdir(search_chunks)
-    check_mkdir(models)
-    check_mkdir(extracted_txt)
-    check_mkdir(tensor)
-    check_mkdir(vocab)
+from src.utils.general import setup_folder
 
 
 if __name__ == "__main__":

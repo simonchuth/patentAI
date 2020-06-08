@@ -35,3 +35,18 @@ def count_word(count_dict, word):
     except KeyError:
         count_dict[word] = 1
     return count_dict
+
+
+def setup_folder(data_folder):
+    search_chunks = join_path(data_folder, 'search_chunks')
+    models = join_path(data_folder, 'models')
+    extracted_txt = join_path(data_folder, 'extracted_txt')
+    tensor = join_path(data_folder, 'tensor')
+    vocab = join_path(data_folder, 'vocab')
+    definition = join_path(data_folder, 'definition')
+    check_mkdir(search_chunks)
+    check_mkdir(models)
+    check_mkdir(extracted_txt)
+    check_mkdir(tensor)
+    check_mkdir(vocab)
+    check_mkdir(definition)
