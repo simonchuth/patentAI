@@ -11,11 +11,8 @@ from src.utils.general import pickle_load
 from src.utils.general import join_path
 
 
-datafolder = '~/Desktop/data/patentAI_data/1_bio_patent_15yrs'
-model_select = '2020_06_07_5layers'
-
-vocab_dict_path = join_path(datafolder, ['vocab', 'vocab_tensor.pkl'])
-model_path = join_path(datafolder, [model_select, 'models', 'best_model.h5'])
+vocab_dict_path = 'resources/vocab_tensor.pkl'
+model_path = 'resources/model.h5'
 
 model = DNN()
 model.load_model(model_path)
