@@ -43,7 +43,10 @@ def retrieve_def(inputs: Inputs):
     term = inputs['term'].strip()
 
     def_dict = pickle_load(definition_path)
-    def_list = def_dict[term]
+    try:
+        def_list = def_dict[term]
+    except KeyError:
+        def_list = ['No examples could be found']
 
     return {'definition_list': def_list}
 
