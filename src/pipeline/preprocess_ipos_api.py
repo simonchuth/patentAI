@@ -81,7 +81,7 @@ if __name__ == "__main__":
 
     if target_doc is not None:
         print(f'Number of target documents: {len(target_doc)}')
-        if args.mp:
+        if args.mp and checkpoint_save:
             chunk_list = chunk_doc(target_doc, num_chunks)
             print(f'Chunked into {len(chunk_list)} chunks')
 
@@ -98,11 +98,6 @@ if __name__ == "__main__":
                     processes.append(p)
                 for p in processes:
                     p.join()
-
-                if savepath is not None:
-                    print(f'Saving to {savepath}')
-                    output_list = list(L)
-                    pickle_save(output_list, savepath)
 
         else:
             output = main_extraction(target_doc)
