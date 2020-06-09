@@ -26,13 +26,15 @@ class BaseAPI:
                                                        'epoch{epoch}.h5'])
             best_model = join_path(output_path, ['models', 'best_model.h5'])
             final_model = join_path(output_path, ['models', 'final_model.h5'])
-
-            callbacks = [EarlyStopping(patience=es_patience),
-                         ModelCheckpoint(filepath=checkpoint_model,
-                                         monitor='val_loss'),
-                         ModelCheckpoint(filepath=best_model,
-                                         monitor='val_loss',
-                                         save_best_only=True)]
+            if es_patience is not None:
+                callbacks = [EarlyStopping(patience=es_patience),
+                             ModelCheckpoint(filepath=checkpoint_model,
+                                             monitor='val_loss'),
+                             ModelCheckpoint(filepath=best_model,
+                                             monitor='val_loss',
+                                             save_best_only=True)]
+            else:
+                callbacks = None
 
         self.params = {'batch_size': 10000,
                        'epochs': 1000,
