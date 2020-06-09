@@ -2,11 +2,21 @@ import argparse
 from multiprocessing import Process, Manager, cpu_count
 
 from src.utils.preprocess_ipos import fetch_patent_url
+from src.utils.preprocess_ipos import generate_datelist
+
 from src.utils.preprocess_ipos import main_extraction
+
 from src.utils.mp_preprocess import chunk_doc
+
 from src.utils.general import join_path
 from src.utils.general import pickle_save
 from src.utils.general import setup_folder
+
+
+def mp_fetch_patent_url(L, date_list):
+    target_doc = fetch_patent_url(date_list)
+    L.append(target_doc)
+    print(f'{len(L)} chunks completed fetching target doc')
 
 
 if __name__ == "__main__":
@@ -40,8 +50,31 @@ if __name__ == "__main__":
                   'preprocess_keywords': args.keywords}
 
     if args.numdays is not None:
-        target_doc, date_list = fetch_patent_url(args.numdays)
+        date_list = generate_datelist(args.numdays)
         params['preprocess_date_list'] = date_list
+
+        if args.mp:
+            if args.num_chunks is None:
+                num_chunks = cpu_count()
+            else:
+                num_chunks = args.num_chunks
+
+            chunk_list = chunk_doc(date_list, num_chunks)
+
+            with Manager() as manager:
+                L = manager.list()
+                processes = []
+                for chunk_items in chunk_list:
+                    p = Process(target=mp_fetch_patent_url,
+                                args=(L, chunk_items))
+                    p.start()
+                    processes.append(p)
+                for p in processes:
+                    p.join()
+                normal_L = list(L)
+                target_doc = [doc for chunk in normal_L for doc in chunk]
+        else:
+            target_doc = fetch_patent_url(date_list)
 
     if params_path is not None:
         pickle_save(params, params_path)
@@ -49,10 +82,6 @@ if __name__ == "__main__":
     if target_doc is not None:
         print(f'Number of target documents: {len(target_doc)}')
         if args.mp:
-            if args.num_chunks is None:
-                num_chunks = cpu_count()
-            else:
-                num_chunks = args.num_chunks
             chunk_list = chunk_doc(target_doc, num_chunks)
             print(f'Chunked into {len(chunk_list)} chunks')
 
