@@ -27,13 +27,15 @@ if __name__ == "__main__":
     if args.data_folder is None:
         checkpoint_save = args.checkpoint_folder
         combinefile = args.combinefile
-
+        savepath = args.savepath
         if (checkpoint_save is None) and (combinefile is None):
             raise FileNotFoundError('No file path was provided')
 
     else:
         setup_folder(args.data_folder)
         checkpoint_save = join_path(args.data_folder, 'search_chunks')
+        savepath = join_path(args.data_folder, ['extracted_txt',
+                                                'extracted.pkl'])
         combinefile = None
     try:
         output_list = pickle_load(combinefile)
@@ -52,6 +54,6 @@ if __name__ == "__main__":
         if (len(claims) > 1) and (len(definitions) > 1):
             processed_data.append(app_data)
 
-    if args.savepath is not None:
+    if savepath is not None:
         print(f'Saving to {args.savepath}')
         pickle_save(processed_data, args.savepath)
