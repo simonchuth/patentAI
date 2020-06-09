@@ -55,5 +55,5 @@ if __name__ == "__main__":
             processed_data.append(app_data)
 
     if savepath is not None:
-        print(f'Saving to {args.savepath}')
-        pickle_save(processed_data, args.savepath)
+        print(f'Saving to {savepath}')
+        pickle_save(processed_data, savepath)
