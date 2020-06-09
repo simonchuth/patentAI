@@ -8,7 +8,7 @@ from os import listdir
 from os.path import join
 
 
-def fetch_patent_url(numdays=3650, date_list=None):
+def generate_datelist(numdays=3650, date_list=None):
     if date_list is None:
         base = datetime.datetime.today()
         date_list = [base - datetime.timedelta(days=x) for x in range(numdays)]
@@ -16,10 +16,13 @@ def fetch_patent_url(numdays=3650, date_list=None):
         ipos_format = [date.strftime('%Y-%m-%d') for date in weekday]
     else:
         ipos_format = date_list
+    return ipos_format
 
+
+def fetch_patent_url(date_list):
     url = 'https://api.data.gov.sg/v1/technology/ipos/patents?lodgement_date='
     target_doc = []
-    for date in tqdm(ipos_format):
+    for date in tqdm(date_list):
         api = url + date
         result = requests.get(api).json()
 
@@ -40,7 +43,7 @@ def fetch_patent_url(numdays=3650, date_list=None):
                 elif d['docType']['description'] == \
                         'Full Specification (Grant)':
                     target_doc.append(d['url'])
-    return target_doc, ipos_format
+    return target_doc
 
 
 def english_origin(app):
@@ -132,8 +135,8 @@ def combine_mp_chunks(pkl_path):
 
 
 def combine_checkpoint_file(folder_path):
-    pkl_list = [filename for filename in
-                listdir(folder_path) if filename.endswith('.pkl')]
+    pkl_list = [filename for filename in listdir(folder_path) if
+                filename.endswith('_checkpoint.pkl')]
 
     output_combined = []
     for pkl_name in pkl_list:
