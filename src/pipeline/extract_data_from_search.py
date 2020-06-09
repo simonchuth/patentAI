@@ -11,6 +11,8 @@ from src.utils.preprocess_ipos import extract_app
 
 from src.utils.general import pickle_save
 from src.utils.general import pickle_load
+from src.utils.general import setup_folder
+from src.utils.general import join_path
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -23,30 +25,20 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.data_folder is None:
-        if args.checkpoint_folder is not None:
-            output_list = combine_checkpoint_file(args.checkpoint_folder)
-        elif args.combinefile is not None:
-            output_list = pickle_load(args.combinefile)
-        else:
+        checkpoint_save = args.checkpoint_folder
+        combinefile = args.combinefile
+
+        if (checkpoint_save is None) and (combinefile is None):
             raise FileNotFoundError('No file path was provided')
-        params_path = None
 
     else:
         setup_folder(args.data_folder)
         checkpoint_save = join_path(args.data_folder, 'search_chunks')
-        combinefile = join_path(args.data_folder, ['search_chunks', 'raw.pkl'])
-        try:
-            output_list = combine_checkpoint_file(args.checkpoint_save)
-        except Exception:
-            output_list = pickle_load(combinefile)
-
-
-
-
-
-
-
-
+        combinefile = None
+    try:
+        output_list = pickle_load(combinefile)
+    except Exception:
+        output_list = combine_checkpoint_file(checkpoint_save)
 
     app_list = extract_app(output_list)
     print(f'Total number of applications: {len(app_list)}')
