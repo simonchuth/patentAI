@@ -29,8 +29,9 @@ if __name__ == "__main__":
         model_output = args.model_output
         tensor_folder = args.tensor_folder
     else:
-        date = datetime.datetime.today()
-        date = date.strftime('%Y_%m_%d') + '_' + args.remark
+        date = datetime.datetime.today().strftime('%Y_%m_%d')
+        if args.remark is not None:
+            date = date + '_' + args.remark
         model_output = join_path(args.data_folder, ['models', date])
         check_mkdir(model_output)
         tensor_folder = join_path(args.data_folder, 'tensor')
