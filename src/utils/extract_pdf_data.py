@@ -39,15 +39,16 @@ def extract_definition(dataset):
     def_example = {}
     for app in tqdm(dataset):
         for definition in app[2]:
-            term = extract_term_from_definition(definition).lower()
-            try:
-                def_example[term] = def_example[term].append(definition)
-            except Exception:
-                def_example[term] = [definition]
+            terms = extract_term_from_definition(definition)
+            for term in terms:
+                try:
+                    def_example[term] = def_example[term].append(definition)
+                except Exception:
+                    def_example[term] = [definition]
     return def_example
 
 
 def extract_term_from_definition(definition, term_pattern=r'".+?"'):
-    term = re.findall(term_pattern, definition)[0]
-    term = term.replace('"', '')
-    return term
+    terms = re.findall(term_pattern, definition)
+    terms = [term.replace('"', '').lower() for term in terms]
+    return terms
