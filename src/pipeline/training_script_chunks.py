@@ -36,7 +36,7 @@ if __name__ == "__main__":
 
     tensor_list = listdir(tensor_folder)
 
-    model = DNN(model_output, es_patience=None)
+    model = DNN(model_output, es_patience=2, callbacks=['es'])
 
     if args.pretrain_path is not None:
         model.load_model(args.pretrain_path)
