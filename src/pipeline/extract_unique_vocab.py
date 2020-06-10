@@ -63,7 +63,7 @@ if __name__ == "__main__":
     word_count = {}
     for app in tqdm(sub_list):
         definition = ' '.join(app[2])
-        definition = definition.lower().split(' ')
+        definition = set(definition.lower().split(' '))
         definition = [w for w in definition if len(w) < args.max_length]
         for word in definition:
             if (word.isalpha()) and (word.lower() not in args.error_word_list):
