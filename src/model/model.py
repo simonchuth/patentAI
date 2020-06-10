@@ -59,12 +59,7 @@ class BaseAPI:
         return self.params
 
     def set_params(self, update_params):
-
-        old_params = self.params.copy()
         self.params = update_dict(self.params, update_params)
-        # Compile model again if the parameters were changed
-        if old_params != self.params:
-            self.compile_model()
 
     def save_model(self):
 
@@ -96,6 +91,7 @@ class DNN(BaseAPI):
                       'input_dim': input_dim,
                       'output_dim': output_dim}
         self.set_params(DNN_params)
+        self.compile_model()
 
     def compile_model(self):
 
@@ -105,15 +101,15 @@ class DNN(BaseAPI):
             if i == 0:
                 self.model.add(Dense(layer,
                                      input_dim=self.params['input_dim'],
-                                     activation='relu',
+                                     activation='tanh',
                                      name='Input'))
             else:
                 self.model.add(Dense(layer,
-                                     activation='relu',
+                                     activation='tanh',
                                      name=f'Hidden_{i}'))
 
         self.model.add(Dense(self.params['output_dim'],
-                             activation='relu',
+                             activation='linear',
                              name='Output'))
 
         self.model.compile(optimizer=self.params['optimizer'],
