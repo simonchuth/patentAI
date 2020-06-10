@@ -48,7 +48,7 @@ if __name__ == "__main__":
         except Exception:
             params = {}
         model_params = model.get_params()
-        model_params['epochs'] = 20
+        model_params['epochs'] = 10
         model.set_params(model_params)
 
         for key in model_params.keys():
@@ -65,4 +65,13 @@ if __name__ == "__main__":
                 model.fit(X_train, y_train, X_test, y_test)
                 del X_train, y_train
                 gc.collect()
+        output_path = model_params['output_path']
+        model_params['final_model'] = join_path(output_path,
+                                                ['models', f'cycle_{i}.h5'])
+        model.set_params(model_params)
+        model.save_model()
+        
+    model_params['final_model'] = join_path(output_path,
+                                            ['models', 'final_model.h5'])
+    model.set_params(model_params)
     model.save_model()
