@@ -13,7 +13,11 @@ from src.utils.general import check_mkdir
 
 
 class BaseAPI:
-    def __init__(self, output_path=None, es_patience=30):
+    def __init__(self,
+                 output_path,
+                 es_patience,
+                 callbacks):
+
         if output_path is None:
             callbacks = None
             final_model = None
@@ -26,20 +30,29 @@ class BaseAPI:
                                                        'epoch{epoch}.h5'])
             best_model = join_path(output_path, ['models', 'best_model.h5'])
             final_model = join_path(output_path, ['models', 'final_model.h5'])
-            if es_patience is not None:
-                callbacks = [EarlyStopping(patience=es_patience),
-                             ModelCheckpoint(filepath=checkpoint_model,
-                                             monitor='val_loss'),
-                             ModelCheckpoint(filepath=best_model,
-                                             monitor='val_loss',
-                                             save_best_only=True)]
-            else:
-                callbacks = None
+
+            cb = []
+
+            if 'es' in callbacks:
+                cb.append(EarlyStopping(patience=es_patience,
+                                        restore_best_weights=True))
+
+            if 'checkpoint_model' in callbacks:
+                cb.append(ModelCheckpoint(filepath=checkpoint_model,
+                                          monitor='val_loss'))
+
+            if 'best_model' in callbacks:
+                cb.append(ModelCheckpoint(filepath=best_model,
+                                          monitor='val_loss',
+                                          save_best_only=True))
+
+            if len(cb) == 0:
+                cb = None
 
         self.params = {'batch_size': 10000,
                        'epochs': 1000,
                        'output_path': output_path,
-                       'callbacks': callbacks,
+                       'callbacks': cb,
                        'final_model': final_model}
 
     def fit(self, X_train, y_train, X_val, y_val):
@@ -81,9 +94,10 @@ class DNN(BaseAPI):
                  output_path=None,
                  es_patience=15,
                  input_dim=2052,
-                 output_dim=512):
+                 output_dim=512,
+                 callbacks=['es, checkpoint_model, best_model']):
 
-        BaseAPI.__init__(self, output_path, es_patience)
+        BaseAPI.__init__(self, output_path, es_patience, callbacks)
         DNN_params = {'layers': [2048, 1024, 1024, 512, 512],
                       'optimizer': Adam(),
                       'loss': CosineSimilarity(),
