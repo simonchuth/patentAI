@@ -21,6 +21,8 @@ class BaseAPI:
         if output_path is None:
             callbacks = None
             final_model = None
+            cb = None
+
         else:
             # Make directory for outputs
             check_mkdir(join_path(output_path, 'checkpoints'))
@@ -98,7 +100,8 @@ class DNN(BaseAPI):
                  callbacks=['es, checkpoint_model, best_model']):
 
         BaseAPI.__init__(self, output_path, es_patience, callbacks)
-        DNN_params = {'layers': [2048, 1024, 1024, 512, 512],
+        DNN_params = {'layers_num': [2048, 1024, 1024, 512],
+                      'layers_act': ['tanh', 'tanh', 'tanh', 'linear'],
                       'optimizer': Adam(),
                       'loss': CosineSimilarity(),
                       'metrics': ['cosine_similarity'],
@@ -111,15 +114,19 @@ class DNN(BaseAPI):
 
         self.model = Sequential()
 
-        for i, layer in enumerate(self.params['layers']):
+        for i, layer in enumerate(self.params['layers_num']):
             if i == 0:
+                print(f"Input layer: {layer} nodes,\
+                      {self.params['layers_act'][i]} activation function")
                 self.model.add(Dense(layer,
                                      input_dim=self.params['input_dim'],
-                                     activation='tanh',
+                                     activation=self.params['layers_act'][i],
                                      name='Input'))
             else:
+                print(f"Hidden_{i}: {layer} nodes,\
+                      {self.params['layers_act'][i]} activation function")
                 self.model.add(Dense(layer,
-                                     activation='tanh',
+                                     activation=self.params['layers_act'][i],
                                      name=f'Hidden_{i}'))
 
         self.model.add(Dense(self.params['output_dim'],
