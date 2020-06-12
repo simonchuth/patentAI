@@ -5,7 +5,8 @@ from src.utils.general import pickle_save
 from src.utils.general import join_path
 
 from src.utils.mp_preprocess import chunk_doc
-from src.utils.encode import encode_dataset
+from src.utils.encode import encode_dnn_dataset
+from src.utils.encode import encode_attention_dataset
 
 import random
 
@@ -19,6 +20,7 @@ if __name__ == "__main__":
     parser.add_argument("--data_folder", default=None)
     parser.add_argument("--random_seed", type=int, default=1)
     parser.add_argument("--chunk_size", type=int, default=400)
+    parser.add_argument("--mode", type=int, default='attention')
 
     args = parser.parse_args()
 
@@ -56,15 +58,22 @@ if __name__ == "__main__":
 
     for i, dataset in enumerate(train_chunks):
         print(f'Encoding train chunk {i}')
-        context_tensor, target_tensor = encode_dataset(dataset)
-        output = [context_tensor, target_tensor]
+        if args.mode == 'dnn':
+            context_tensor, target_tensor = encode_dnn_dataset(dataset)
+            output = [context_tensor, target_tensor]
+        if args.mode == 'attention':
+            output = encode_attention_dataset(dataset)
+
         train_name = str(i) + '_train.pkl'
         train_path = join_path(tensor_folder, train_name)
         pickle_save(output, train_path)
 
     print('Encoding test chunk')
-    context_tensor, target_tensor = encode_dataset(test_set)
-    output = [context_tensor, target_tensor]
+    if args.mode == 'dnn':
+        context_tensor, target_tensor = encode_dnn_dataset(dataset)
+        output = [context_tensor, target_tensor]
+    if args.mode == 'attention':
+        output = encode_attention_dataset(dataset)
     test_name = 'test.pkl'
     test_path = join_path(tensor_folder, test_name)
     pickle_save(output, test_path)
