@@ -1,4 +1,6 @@
 import argparse
+import random
+import gc
 
 from src.utils.general import pickle_load
 from src.utils.general import pickle_save
@@ -9,8 +11,6 @@ from src.utils.mp_preprocess import chunk_doc
 from src.utils.encode import encode_dnn_dataset
 from src.utils.encode import encode_attention_dataset
 
-import random
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -20,7 +20,7 @@ if __name__ == "__main__":
     parser.add_argument("--test_ratio", type=float, default=0.1)
     parser.add_argument("--data_folder", default=None)
     parser.add_argument("--random_seed", type=int, default=1)
-    parser.add_argument("--chunk_size", type=int, default=400)
+    parser.add_argument("--chunk_size", type=int, default=300)
     parser.add_argument("--mode", default='attention')
 
     args = parser.parse_args()
@@ -65,12 +65,16 @@ if __name__ == "__main__":
         if args.mode == 'dnn':
             context_tensor, target_tensor = encode_dnn_dataset(dataset)
             output = [context_tensor, target_tensor]
+            del context_tensor, target_tensor
+            gc.collect()
         if args.mode == 'attention':
             output = encode_attention_dataset(dataset)
 
         train_name = str(i) + '_train.pkl'
         train_path = join_path(tensor_folder, train_name)
         pickle_save(output, train_path)
+        del output
+        gc.collect()
 
     print('Encoding test chunk')
     if args.mode == 'dnn':
