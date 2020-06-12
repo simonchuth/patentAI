@@ -3,6 +3,7 @@ import argparse
 from src.utils.general import pickle_load
 from src.utils.general import pickle_save
 from src.utils.general import join_path
+from src.utils.general import check_mkdir
 
 from src.utils.mp_preprocess import chunk_doc
 from src.utils.encode import encode_dnn_dataset
@@ -30,8 +31,11 @@ if __name__ == "__main__":
     else:
         extracted_pkl = join_path(args.data_folder, ['extracted_txt',
                                                      'extracted.pkl'])
-        tensor_folder = join_path(args.data_folder, 'tensor')
+        tensor_folder = join_path(args.data_folder, ['tensor',
+                                                     args.mode])
         params_path = join_path(args.data_folder, 'params.pkl')
+
+        check_mkdir(tensor_folder)
         try:
             params = pickle_load(params_path)
         except Exception:
