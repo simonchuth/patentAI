@@ -1,13 +1,15 @@
 import argparse
+import random
+import gc
 
 from src.utils.general import pickle_load
 from src.utils.general import pickle_save
 from src.utils.general import join_path
+from src.utils.general import check_mkdir
 
 from src.utils.mp_preprocess import chunk_doc
-from src.utils.encode import encode_dataset
-
-import random
+from src.utils.encode import encode_dnn_dataset
+from src.utils.encode import encode_attention_dataset
 
 
 if __name__ == "__main__":
@@ -18,7 +20,8 @@ if __name__ == "__main__":
     parser.add_argument("--test_ratio", type=float, default=0.1)
     parser.add_argument("--data_folder", default=None)
     parser.add_argument("--random_seed", type=int, default=1)
-    parser.add_argument("--chunk_size", type=int, default=400)
+    parser.add_argument("--chunk_size", type=int, default=300)
+    parser.add_argument("--mode", default='attention')
 
     args = parser.parse_args()
 
@@ -28,8 +31,11 @@ if __name__ == "__main__":
     else:
         extracted_pkl = join_path(args.data_folder, ['extracted_txt',
                                                      'extracted.pkl'])
-        tensor_folder = join_path(args.data_folder, 'tensor')
+        tensor_folder = join_path(args.data_folder, ['tensor',
+                                                     args.mode])
         params_path = join_path(args.data_folder, 'params.pkl')
+
+        check_mkdir(tensor_folder)
         try:
             params = pickle_load(params_path)
         except Exception:
@@ -56,15 +62,26 @@ if __name__ == "__main__":
 
     for i, dataset in enumerate(train_chunks):
         print(f'Encoding train chunk {i}')
-        context_tensor, target_tensor = encode_dataset(dataset)
-        output = [context_tensor, target_tensor]
+        if args.mode == 'dnn':
+            context_tensor, target_tensor = encode_dnn_dataset(dataset)
+            output = [context_tensor, target_tensor]
+            del context_tensor, target_tensor
+            gc.collect()
+        if args.mode == 'attention':
+            output = encode_attention_dataset(dataset)
+
         train_name = str(i) + '_train.pkl'
         train_path = join_path(tensor_folder, train_name)
         pickle_save(output, train_path)
+        del output
+        gc.collect()
 
     print('Encoding test chunk')
-    context_tensor, target_tensor = encode_dataset(test_set)
-    output = [context_tensor, target_tensor]
+    if args.mode == 'dnn':
+        context_tensor, target_tensor = encode_dnn_dataset(dataset)
+        output = [context_tensor, target_tensor]
+    if args.mode == 'attention':
+        output = encode_attention_dataset(dataset)
     test_name = 'test.pkl'
     test_path = join_path(tensor_folder, test_name)
     pickle_save(output, test_path)
