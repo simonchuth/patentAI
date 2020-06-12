@@ -21,7 +21,7 @@ if __name__ == "__main__":
     parser.add_argument("--data_folder", default=None)
     parser.add_argument("--random_seed", type=int, default=1)
     parser.add_argument("--chunk_size", type=int, default=400)
-    parser.add_argument("--mode", type=int, default='attention')
+    parser.add_argument("--mode", default='attention')
 
     args = parser.parse_args()
 
