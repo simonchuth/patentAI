@@ -92,6 +92,7 @@ def encode_dnn_dataset(dataset, term_pattern=r'".+?"'):
 
 
 def encode_attention_dataset(dataset):
+    output_tensor_list = []
     for app in tqdm(dataset):
         intro = app[0]
         claims = ' '.join(app[1])
@@ -100,6 +101,7 @@ def encode_attention_dataset(dataset):
         claims_token = text_to_word_sequence(claims)
 
         definitions = app[2]
+        def_tensor_list = []
         for def_entry in definitions:
             term = extract_term_from_definition(def_entry)
             definition_tokens = text_to_word_sequence(def_entry)
@@ -107,18 +109,18 @@ def encode_attention_dataset(dataset):
             for i in range(4, len(definition_tokens)):
                 preword = ' '.join(definition_tokens[:i])
                 target_word = definition_tokens[i]
-                def_tensor_list = [encode_data(preword),
-                                   encode_data(target_word),
-                                   encode_data(term)]
+                def_tensor_list.append([encode_data(preword),
+                                        encode_data(target_word),
+                                        encode_data(term)])
 
         intro_tensor = encode_data(intro_token)
         claims_tensor = encode_data(claims_token)
 
-        output_tensor_list = [intro_tensor,
-                              claims_tensor,
-                              def_tensor_list]
+        output_tensor_list.append([intro_tensor,
+                                   claims_tensor,
+                                   def_tensor_list])
 
-        return output_tensor_list
+    return output_tensor_list
 
 
 def encode_preword_len(preword):
