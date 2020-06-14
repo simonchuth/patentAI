@@ -104,14 +104,10 @@ def encode_attention_dataset(dataset):
         def_tensor_list = []
         for def_entry in definitions:
             term = extract_term_from_definition(def_entry)
-            definition_tokens = text_to_word_sequence(def_entry)
-
-            for i in range(4, len(definition_tokens)):
-                preword = ' '.join(definition_tokens[:i])
-                target_word = definition_tokens[i]
-                def_tensor_list.append([encode_data(preword),
-                                        encode_data(target_word),
-                                        encode_data(term)])
+            def_entry_tokens = text_to_word_sequence(def_entry)
+            def_entry_tokens = '<START>' + def_entry_tokens + '<STOP>'
+            def_tensor_list.append([encode_data(term),
+                                    encode_data(def_entry_tokens)])
 
         intro_tensor = encode_data(intro_token)
         claims_tensor = encode_data(claims_token)
