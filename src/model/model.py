@@ -166,15 +166,15 @@ class Att_model(BaseAPI):
 
         BaseAPI.__init__(self, output_path, es_patience, callbacks)
 
-    def compile_model(self):
+    def compile_model(self, batch_size=10):
 
-        intro_inputs = Input(batch_shape=(10, None, 512),
+        intro_inputs = Input(batch_shape=(batch_size, 400, 512),
                              name='intro_inputs')
-        claim_inputs = Input(batch_shape=(10, None, 512),
+        claim_inputs = Input(batch_shape=(batch_size, 300, 512),
                              name='claim_inputs')
-        term_inputs = Input(batch_shape=(10, 1, 512),
+        term_inputs = Input(batch_shape=(batch_size, 1, 512),
                             name='term_inputs')
-        decoder_inputs = Input(batch_shape=(10, None, 512),
+        decoder_inputs = Input(batch_shape=(batch_size, 3, 512),
                                name='decoder_inputs')
 
         # Encoder stack
@@ -197,11 +197,6 @@ class Att_model(BaseAPI):
         claims_lstm_f_out, claims_f_h, claims_f_c = lstm_claims_f(claim_inputs)
         intro_lstm_b_out, intro_b_h, intro_b_c = lstm_intro_b(intro_inputs)
         claims_lstm_b_out, claims_b_h, claims_b_c = lstm_claims_b(claim_inputs)
-
-        print(intro_lstm_f_out.shape)
-        print(intro_f_h.shape)
-        print(intro_f_c.shape)
-        print(term_inputs.shape)
 
         intro_f_att = Attention()([term_inputs, intro_lstm_f_out])
         claims_f_att = Attention()([term_inputs, claims_lstm_f_out])
@@ -226,16 +221,13 @@ class Att_model(BaseAPI):
         encoder_states = [context_h_state, context_c_state]
 
         # Decoder stack
-        lstm_decode = LSTM(2048, return_sequences=True, return_state=True)
+        lstm_decode = LSTM(2048, return_state=True)
         decoder_output, _, _ = lstm_decode(decoder_inputs,
                                            initial_state=encoder_states)
-
+        decoder_output = tf.reshape(decoder_output, (batch_size, 1, 2048))
         dnn_input = tf.concat([context_att, decoder_output], axis=2)
 
         dnn_output = Dense(2048, activation='tanh', name='DNN_1')(dnn_input)
-        dnn_output = Dense(2048, activation='tanh', name='DNN_2')(dnn_output)
-        dnn_output = Dense(1024, activation='tanh', name='DNN_3')(dnn_output)
-        dnn_output = Dense(1024, activation='tanh', name='DNN_4')(dnn_output)
         dnn_output = Dense(512, activation='linear', name='DNN_5')(dnn_output)
 
         self.model = Model([intro_inputs,
