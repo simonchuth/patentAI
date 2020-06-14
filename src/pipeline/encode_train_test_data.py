@@ -17,7 +17,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--extracted_pkl", default=None)
     parser.add_argument("--tensor_folder", default=None)
-    parser.add_argument("--test_ratio", type=float, default=0.1)
+    parser.add_argument("--test_ratio", type=float, default=0.01)
     parser.add_argument("--data_folder", default=None)
     parser.add_argument("--random_seed", type=int, default=1)
     parser.add_argument("--chunk_size", type=int, default=300)
@@ -48,11 +48,14 @@ if __name__ == "__main__":
     dataset = pickle_load(extracted_pkl)
 
     random.Random(1).shuffle(dataset)
-    test_size = min(int(len(dataset) * args.test_ratio), args.chunk_size)
+    test_size = int(len(dataset) * args.test_ratio)
     test_set = dataset[:test_size]
     train_set = dataset[test_size:]
 
-    if len(train_set) > args.chunk_size:
+    if args.chunk_size == 0:
+        num_chunks = len(train_set)
+        train_chunks = chunk_doc(train_set, num_chunks)
+    elif len(train_set) > args.chunk_size:
         num_chunks = int(len(train_set) / args.chunk_size)
         train_chunks = chunk_doc(train_set, num_chunks)
     else:
