@@ -29,6 +29,7 @@ if __name__ == "__main__":
     dataset = pickle_load(extracted_pkl)
 
     for i, app in enumerate(dataset):
+        print(f'{i}/{len(dataset)}')
         output = encode_attention_app(dataset)
         for j, definition in enumerate(output[2]):
             save_list = [output[0],
