@@ -100,20 +100,26 @@ def encode_attention_dataset(dataset):
         intro_token = text_to_word_sequence(intro)
         claims_token = text_to_word_sequence(claims)
 
+        if (len(intro_token) < 400) or (len(claims_token) < 300):
+            continue
+        else:
+            intro_token = intro_token[:400]
+            claims_token = claims_token[:300]
+
         definitions = app[2]
         def_tensor_list = []
         for def_entry in definitions:
             term = extract_term_from_definition(def_entry)
             def_entry_tokens = text_to_word_sequence(def_entry)
-            def_entry_tokens.insert(0, '<START>')
             def_entry_tokens.append('<STOP>')
             for i, token in enumerate(def_entry_tokens):
-                if i + 1 < len(def_entry_tokens):
-                    decoder_input_data = def_entry_tokens[:i+1]
-                    decoder_target_data = def_entry_tokens[i+1]
-                    def_tensor_list.append([encode_data(term),
-                                            encode_data(decoder_input_data),
-                                            encode_data(decoder_target_data)])
+                if i < 3:
+                    continue
+                decoder_input_data = def_entry_tokens[i-3:i]
+                decoder_target_data = def_entry_tokens[i]
+                def_tensor_list.append([encode_data(term),
+                                        encode_data(decoder_input_data),
+                                        encode_data(decoder_target_data)])
 
         intro_tensor = encode_data(intro_token)
         claims_tensor = encode_data(claims_token)
