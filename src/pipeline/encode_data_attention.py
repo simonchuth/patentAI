@@ -30,7 +30,7 @@ if __name__ == "__main__":
 
     for i, app in enumerate(dataset):
         print(f'{i}/{len(dataset)}')
-        output = encode_attention_app(dataset)
+        output = encode_attention_app(app)
         for j, definition in enumerate(output[2]):
             save_list = [output[0],
                          output[1],
