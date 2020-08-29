@@ -1,15 +1,12 @@
 import argparse
 import random
-import gc
 
 from src.utils.general import pickle_load
 from src.utils.general import pickle_save
 from src.utils.general import join_path
 from src.utils.general import check_mkdir
 
-from src.utils.mp_preprocess import chunk_doc
-from src.utils.encode import encode_dnn_dataset
-from src.utils.encode import encode_attention_dataset
+from src.utils.encode import encode_knn_dataset
 
 
 if __name__ == "__main__":
