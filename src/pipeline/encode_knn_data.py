@@ -26,11 +26,8 @@ if __name__ == "__main__":
     else:
         extracted_pkl = join_path(args.data_folder, ['extracted_txt',
                                                      'extracted.pkl'])
-        tensor_folder = join_path(args.data_folder, ['tensor',
-                                                     args.mode])
         params_path = join_path(args.data_folder, 'params.pkl')
 
-        check_mkdir(tensor_folder)
         try:
             params = pickle_load(params_path)
         except Exception:
