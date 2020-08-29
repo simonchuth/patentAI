@@ -1,4 +1,5 @@
 import random
+from os.path import join
 
 import numpy as np
 
@@ -12,6 +13,8 @@ from tensorflow import convert_to_tensor
 from tensorflow.keras.preprocessing.text import text_to_word_sequence
 
 from src.utils.extract_pdf_data import extract_term_from_definition
+
+from src.utils.general import pickle_save
 
 encoder_path = 'encoder/use4_model/'
 encoder = hub.load(encoder_path)
@@ -89,6 +92,63 @@ def encode_dnn_dataset(dataset, term_pattern=r'".+?"'):
     context_tensor = tf.concat(context_tensor, axis=0)
     target_tensor = tf.concat(target_tensor, axis=0)
     return context_tensor, target_tensor
+
+
+def encode_knn_dataset(dataset, save_path, term_pattern=r'".+?"'):
+    dict_word2idx = {}
+
+    for i, app in tqdm(enumerate(dataset)):
+        intro = app[0]
+        claims = ' '.join(app[1])
+        intro_tensor = encode_data(intro).numpy()
+        claims_tensor = encode_data(claims).numpy()
+
+        definitions = app[2]
+        for def_entry in definitions:
+            term = extract_term_from_definition(def_entry)
+            term_tensor = encode_data(term).numpy()
+
+            definition_tokens = text_to_word_sequence(def_entry)
+            definition_tokens.append('[END]')
+
+            preword_list = []
+            target_word_list = []
+            for i in range(4, len(definition_tokens)):
+                preword = ' '.join(definition_tokens[:i])
+                target_word = definition_tokens[i]
+
+                preword_list.append(preword)
+                target_word_list.append(target_word)
+
+            preword_tensors = encode_data(preword_list).numpy()
+            context = [intro_tensor,
+                       claims_tensor,
+                       term_tensor]
+            context_np = np.concatenate(context, axis=1)
+            context_np = np.repeat(context_np,
+                                   preword_tensors.shape[0],
+                                   axis=0)
+
+            keys_np = np.concatenate([context_np, preword_tensors], axis=1)
+
+            word_idx_list = []
+            for word in target_word_list:
+                if word not in dict_word2idx.keys():
+                    dict_word2idx[word] = len(dict_word2idx)
+                word_idx_list.append(dict_word2idx[word])
+
+            vals_np = np.array(word_idx_list).reshape((len(word_idx_list), 1))
+
+            keys_fpath = join(save_path, f'{i}_keys.npy')
+            vals_fpath = join(save_path, f'{i}_vals.npy')
+
+            np.save(keys_fpath, keys_np)
+            np.save(vals_fpath, vals_np)
+
+    dict_path = join(save_path, 'dict_word2idx.pkl')
+    pickle_save(dict_word2idx, dict_path)
+
+    return dict_word2idx
 
 
 def encode_attention_dataset(dataset):
