@@ -24,7 +24,7 @@ if __name__ == "__main__":
     train_folder_path = join_path(args.data_folder, 'train_data')
 
     train_files = [npfile for npfile in listdir(train_folder_path)
-                   if npfile.endswith('.npy')]
+                   if npfile.endswith('keys.npy')]
 
     random.Random(args.random_seed).shuffle(train_files)
     sample_size = min(1000, int(len(train_files)*0.1))
@@ -32,13 +32,15 @@ if __name__ == "__main__":
 
     sample_file_path = join_path(train_folder_path, sample_files[0])
     sample_np = np.load(sample_file_path)
-    dimension = sample_np.shape[0]
+    dimension = sample_np.shape[1]
 
     sample_np_list = []
+    print(f'Loading sample data, dimension {dimension}')
     for npfile in sample_files:
         fname = join_path(train_folder_path, npfile)
         sample_np = np.load(fname)
-        sample_np_list.append(sample_np)
+        if sample_np.shape[1] == dimension:
+            sample_np_list.append(sample_np)
         del sample_np
 
     sample_np = np.concatenate(sample_np_list, axis=0)
@@ -61,12 +63,23 @@ if __name__ == "__main__":
     print('Adding keys')
     start_time = time.time()
     start_idx = 0
+    vals_np_list = []
     for i, npfile in enumerate(train_files):
-        fname = join_path(train_folder_path, npfile)
-        to_add = np.load(fname)
+        try:
+            fname = join_path(train_folder_path, npfile)
+            to_add = np.load(fname)
+            vals_fname = npfile[:-8] + 'vals.npy'
+            vals_fname = join_path(train_folder_path, vals_fname)
+            to_add_vals = np.load(vals_fname)
+        except Exception:
+            continue
+
+        if to_add.shape[1] != dimension:
+            continue
         end_idx = start_idx + to_add.shape[0]
         index.add_with_ids(to_add.astype(np.float32), np.arange(start_idx,
                                                                 end_idx))
+        vals_np_list.append(to_add_vals)
         start_idx = end_idx
 
         if (start_idx % 10000) == 0:
@@ -81,4 +94,8 @@ if __name__ == "__main__":
     index_fpath = join_path(train_folder_path, 'index.trained')
     faiss.write_index(index, index_fpath)
 
-    print('Completed')
+    vals_np = np.concatenate(vals_np_list, axis=0)
+    vals_fpath = join_path(train_folder_path, 'vals.trained')
+    np.save(vals_fpath, vals_np)
+
+    print(f'Completed: Trained {end_idx} entries')
