@@ -1,6 +1,7 @@
 import pickle
 from os.path import join
 import os
+import numpy as np
 
 
 def pickle_save(data_var, pkl_path, mode='wb'):
@@ -50,3 +51,15 @@ def setup_folder(data_folder):
     check_mkdir(tensor)
     check_mkdir(vocab)
     check_mkdir(definition)
+
+
+def softmax(x):
+    """ Normalize a numeric array with softmax function
+
+    :param x: Numeric data array
+    :type x: np.array
+    :return: Softmax normalized data
+    :rtype: np.array
+    """
+    e_x = np.exp(x - np.max(x))
+    return e_x / e_x.sum()
