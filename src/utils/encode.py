@@ -50,6 +50,8 @@ def encode_data(input):
     else:
         list_input = [str(input)]
 
+    list_input = [entry if len(entry) < 256 else entry[0:256] for entry in list_input]
+
     return encoder(list_input)
 
 
@@ -104,46 +106,58 @@ def encode_knn_dataset(dataset, save_path, term_pattern=r'".+?"'):
         claims_tensor = encode_data(claims).numpy()
 
         definitions = app[2]
-        for def_entry in definitions:
-            term = extract_term_from_definition(def_entry)
-            term_tensor = encode_data(term).numpy()
+        for j, def_entry in enumerate(definitions):
+            try:
+                term = extract_term_from_definition(def_entry)
+                if len(term) > 1:
+                    term = term[0]
+                term_tensor = encode_data(term).numpy()
 
-            definition_tokens = text_to_word_sequence(def_entry)
-            definition_tokens.append('[END]')
+                definition_tokens = text_to_word_sequence(def_entry)
+                definition_tokens.append('[END]')
 
-            preword_list = []
-            target_word_list = []
-            for i in range(4, len(definition_tokens)):
-                preword = ' '.join(definition_tokens[:i])
-                target_word = definition_tokens[i]
+                preword_list = []
+                target_word_list = []
+                for i in range(4, len(definition_tokens)):
+                    preword = ' '.join(definition_tokens[:i])
+                    target_word = definition_tokens[i]
 
-                preword_list.append(preword)
-                target_word_list.append(target_word)
+                    preword_list.append(preword)
+                    target_word_list.append(target_word)
 
-            preword_tensors = encode_data(preword_list).numpy()
-            context = [intro_tensor,
-                       claims_tensor,
-                       term_tensor]
-            context_np = np.concatenate(context, axis=1)
-            context_np = np.repeat(context_np,
-                                   preword_tensors.shape[0],
-                                   axis=0)
+                preword_tensors = encode_data(preword_list).numpy()
+                context = [intro_tensor,
+                        claims_tensor,
+                        term_tensor]
+                context_np = np.concatenate(context, axis=1)
+                context_np = np.repeat(context_np,
+                                    preword_tensors.shape[0],
+                                    axis=0)
 
-            keys_np = np.concatenate([context_np, preword_tensors], axis=1)
+                keys_np = np.concatenate([context_np, preword_tensors], axis=1)
 
-            word_idx_list = []
-            for word in target_word_list:
-                if word not in dict_word2idx.keys():
-                    dict_word2idx[word] = len(dict_word2idx)
-                word_idx_list.append(dict_word2idx[word])
+                word_idx_list = []
+                for word in target_word_list:
+                    if word not in dict_word2idx.keys():
+                        dict_word2idx[word] = len(dict_word2idx)
+                    word_idx_list.append(dict_word2idx[word])
 
-            vals_np = np.array(word_idx_list).reshape((len(word_idx_list), 1))
+                vals_np = np.array(word_idx_list).reshape((len(word_idx_list), 1))
 
-            keys_fpath = join(save_path, f'{i}_keys.npy')
-            vals_fpath = join(save_path, f'{i}_vals.npy')
+                keys_fpath = join(save_path, f'{i}_{j}_keys.npy')
+                vals_fpath = join(save_path, f'{i}_{j}_vals.npy')
 
-            np.save(keys_fpath, keys_np)
-            np.save(vals_fpath, vals_np)
+                np.save(keys_fpath, keys_np)
+                np.save(vals_fpath, vals_np)
+
+                del keys_np
+                del intro_tensor
+                del claims_tensor
+                del preword_tensors
+                del context_np
+                del term_tensor
+            except Exception:
+                continue
 
     dict_path = join(save_path, 'dict_word2idx.pkl')
     pickle_save(dict_word2idx, dict_path)

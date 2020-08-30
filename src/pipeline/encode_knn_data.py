@@ -45,10 +45,12 @@ if __name__ == "__main__":
 
     train_path = join_path(args.data_folder, 'train_data')
     check_mkdir(train_path)
+    print(f'Encoding training data: {len(train_set)}')
     train_dict_word2idx = encode_knn_dataset(train_set, train_path)
 
     test_path = join_path(args.data_folder, 'test_data')
     check_mkdir(test_path)
+    print(f'Encoding test data: {len(test_set)}')
     train_dict_word2idx = encode_knn_dataset(test_set, test_path)
 
     print('Completed')
