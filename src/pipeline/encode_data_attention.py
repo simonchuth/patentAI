@@ -31,6 +31,8 @@ if __name__ == "__main__":
     for i, app in enumerate(dataset):
         print(f'{i}/{len(dataset)}')
         output = encode_attention_app(app)
+        if output is None:
+            continue
         for j, definition in enumerate(output[2]):
             save_list = [output[0],
                          output[1],
@@ -40,7 +42,7 @@ if __name__ == "__main__":
             train_name = f'{i}_{j}_train.pkl'
             train_path = join_path(tensor_folder, train_name)
             pickle_save(save_list, train_path)
-            del output
-            gc.collect()
+        del output
+        gc.collect()
 
     print('Completed')
