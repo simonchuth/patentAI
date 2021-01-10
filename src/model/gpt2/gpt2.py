@@ -7,8 +7,8 @@ from transformers import GPT2Tokenizer, GPT2LMHeadModel
 
 
 class GptPatent:
-    def __init__(self, model_path='gpt2'):
-        self.tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
+    def __init__(self, model_path='gpt2', tokenizer_path='gpt2'):
+        self.tokenizer = GPT2Tokenizer.from_pretrained(tokenizer_path)
         self.tokenizer.pad_token = '<|endoftext|>'
         self.model = GPT2LMHeadModel.from_pretrained(model_path)
 

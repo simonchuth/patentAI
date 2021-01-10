@@ -67,7 +67,7 @@ def experiment(args):
 
     logger.info('Preprocessing Data')
 
-    data_path = os.path.join(args.train)
+    data_path = os.path.join(args.train, 'extracted.pkl')
 
     with open(data_path, 'rb') as pkl_file:
         data = pickle.load(pkl_file)
@@ -93,7 +93,8 @@ def experiment(args):
     print(f'Size of expanded test data: {len(test_expand_data)}')
 
     print('Initialising GPT2 model')
-    model = GptPatent()
+    model = GptPatent(model_path=os.path.join(args.pretrain, 'model'),
+                      tokenizer_path=os.path.join(args.pretrain, 'tokenizer'))
 
     # batch_size, max_length
     print('Training')
@@ -119,6 +120,7 @@ def str2bool(bool_input):
     else:
         return False
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
@@ -134,12 +136,13 @@ if __name__ == '__main__':
     
     # Data, model, and output directories 
     # For running on AWS sagemaker
-    # parser.add_argument('--model-dir', type=str, default=os.environ['SM_MODEL_DIR'])
-    # parser.add_argument('--train', type=str, default=os.environ['SM_CHANNEL_TRAIN'])
+    parser.add_argument('--model-dir', type=str, default=os.environ['SM_MODEL_DIR'])
+    parser.add_argument('--train', type=str, default=os.environ['SM_CHANNEL_TRAIN'])
+    parser.add_argument('--pretrain', type=str, default=os.environ['SM_CHANNEL_PRETRAIN'])
 
     # For testing of training script locally
-    parser.add_argument('--model-dir', type=str)
-    parser.add_argument('--train', type=str)
+    # parser.add_argument('--model-dir', type=str)
+    # parser.add_argument('--train', type=str)
 
     experiment(parser.parse_args())
 
